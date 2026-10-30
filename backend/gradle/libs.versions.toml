@@ -11,6 +11,7 @@ archunit = "1.5.1"
 uuid-creator = "6.1.1"
 spotless = "8.9.0"
 errorprone-plugin = "5.1.1"
+jooq-docker = "9.0.9"
 
 [libraries]
 spring-boot-bom = { module = "org.springframework.boot:spring-boot-dependencies", version.ref = "spring-boot" }
@@ -23,8 +24,10 @@ spring-boot-starter-jooq = { module = "org.springframework.boot:spring-boot-star
 spring-boot-starter-flyway = { module = "org.springframework.boot:spring-boot-starter-flyway" }
 spring-boot-docker-compose = { module = "org.springframework.boot:spring-boot-docker-compose" }
 spring-modulith-starter-core = { module = "org.springframework.modulith:spring-modulith-starter-core" }
+flyway-core = { module = "org.flywaydb:flyway-core" }
 flyway-postgresql = { module = "org.flywaydb:flyway-database-postgresql" }
 postgresql = { module = "org.postgresql:postgresql" }
+jooq-codegen = { module = "org.jooq:jooq-codegen" }
 uuid-creator = { module = "com.github.f4b6a3:uuid-creator", version.ref = "uuid-creator" }
 
 spring-boot-starter-test = { module = "org.springframework.boot:spring-boot-starter-test" }
@@ -46,3 +49,4 @@ gradle-plugin-errorprone = { module = "net.ltgt.gradle:gradle-errorprone-plugin"
 
 [plugins]
 spring-boot = { id = "org.springframework.boot", version.ref = "spring-boot" }
+jooq-docker = { id = "dev.monosoul.jooq-docker", version.ref = "jooq-docker" }

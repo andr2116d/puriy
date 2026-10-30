@@ -1,6 +1,7 @@
 plugins {
     id("puriy.java")
     alias(libs.plugins.spring.boot)
+    alias(libs.plugins.jooq.docker)
 }
 
 dependencies {
@@ -17,6 +18,12 @@ dependencies {
     implementation(libs.uuid.creator)
     runtimeOnly(libs.postgresql)
 
+    jooqCodegen(platform(libs.spring.boot.bom))
+    jooqCodegen(libs.jooq.codegen)
+    jooqCodegen(libs.flyway.core)
+    jooqCodegen(libs.flyway.postgresql)
+    jooqCodegen(libs.postgresql)
+
     developmentOnly(platform(libs.spring.boot.bom))
     developmentOnly(libs.spring.boot.docker.compose)
 
@@ -28,4 +35,30 @@ dependencies {
     testImplementation(libs.testcontainers.junit)
     testImplementation(libs.archunit)
     testRuntimeOnly(libs.junit.launcher)
+}
+
+jooq {
+    withContainer {
+        image {
+            name = "postgres:17"
+        }
+    }
+}
+
+tasks.generateJooqClasses {
+    schemas.set(
+            listOf(
+                    "rutas",
+                    "tarifas",
+                    "reservas",
+                    "compras",
+                    "pagos",
+                    "boletos",
+                    "operacion",
+                    "notificaciones",
+                    "identidad"))
+    basePackageName.set("puriy.basedatos")
+    migrationLocations.setFromFilesystem("src/main/resources/db/migration")
+    flywayProperties.put("flyway.createSchemas", "false")
+    flywayProperties.put("flyway.defaultSchema", "public")
 }

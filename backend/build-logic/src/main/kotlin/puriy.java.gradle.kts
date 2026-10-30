@@ -34,7 +34,7 @@ tasks.withType<JavaCompile>().configureEach {
     options.compilerArgs.add("-parameters")
     options.errorprone {
         disableWarningsInGeneratedCode.set(true)
-        excludedPaths.set(".*/build/generated/.*")
+        excludedPaths.set(".*/build/generated.*")
         check("NullAway", CheckSeverity.ERROR)
         option("NullAway:AnnotatedPackages", "pe.puriy")
         option("NullAway:JSpecifyMode", "true")
