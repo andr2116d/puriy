@@ -8,6 +8,7 @@ errorprone = "2.51.0"
 nullaway = "0.14.3"
 palantir-java-format = "2.103.0"
 archunit = "1.5.1"
+uuid-creator = "6.1.1"
 spotless = "8.9.0"
 errorprone-plugin = "5.1.1"
 
@@ -24,6 +25,7 @@ spring-boot-docker-compose = { module = "org.springframework.boot:spring-boot-do
 spring-modulith-starter-core = { module = "org.springframework.modulith:spring-modulith-starter-core" }
 flyway-postgresql = { module = "org.flywaydb:flyway-database-postgresql" }
 postgresql = { module = "org.postgresql:postgresql" }
+uuid-creator = { module = "com.github.f4b6a3:uuid-creator", version.ref = "uuid-creator" }
 
 spring-boot-starter-test = { module = "org.springframework.boot:spring-boot-starter-test" }
 spring-boot-starter-webmvc-test = { module = "org.springframework.boot:spring-boot-starter-webmvc-test" }

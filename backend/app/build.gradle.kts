@@ -14,6 +14,7 @@ dependencies {
     implementation(libs.spring.boot.starter.flyway)
     implementation(libs.flyway.postgresql)
     implementation(libs.spring.modulith.starter.core)
+    implementation(libs.uuid.creator)
     runtimeOnly(libs.postgresql)
 
     developmentOnly(platform(libs.spring.boot.bom))
