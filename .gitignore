@@ -1,0 +1,29 @@
+.DS_Store
+.idea/
+*.iml
+.vscode/
+
+# Gradle y Java
+.gradle/
+build/
+out/
+!gradle/wrapper/gradle-wrapper.jar
+
+# Frontend
+node_modules/
+dist/
+
+# Terraform
+.terraform/
+*.tfstate
+*.tfstate.*
+*.tfplan
+crash.log
+*.auto.tfvars
+terraform.tfvars
+
+# Configuración local
+.env
+.env.*
+!.env.example
+*.pem
