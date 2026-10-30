@@ -7,6 +7,8 @@
 .gradle/
 build/
 out/
+bin/
+.kotlin/
 !gradle/wrapper/gradle-wrapper.jar
 
 # Frontend
