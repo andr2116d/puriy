@@ -1,0 +1,9 @@
+services:
+  postgres:
+    image: postgres:17
+    environment:
+      POSTGRES_DB: puriy
+      POSTGRES_USER: puriy
+      POSTGRES_PASSWORD: puriy
+    ports:
+      - "5432"
