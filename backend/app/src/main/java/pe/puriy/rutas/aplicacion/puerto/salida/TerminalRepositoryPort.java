@@ -1,5 +1,6 @@
 package pe.puriy.rutas.aplicacion.puerto.salida;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import pe.puriy.rutas.dominio.modelo.Terminal;
@@ -16,4 +17,6 @@ public interface TerminalRepositoryPort {
     List<Terminal> listarTodos();
 
     List<Terminal> listarPorCiudad(String ciudad);
+
+    List<Terminal> listarPorIds(Collection<TerminalId> ids);
 }

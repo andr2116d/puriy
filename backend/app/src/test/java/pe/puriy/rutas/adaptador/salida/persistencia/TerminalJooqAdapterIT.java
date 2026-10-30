@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static puriy.basedatos.rutas.Tables.TERMINALES;
 
+import java.util.List;
 import org.jooq.DSLContext;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,6 +19,7 @@ import pe.puriy.compartido.dominio.IdentificadorUnico;
 import pe.puriy.rutas.dominio.excepcion.TerminalDuplicadoException;
 import pe.puriy.rutas.dominio.modelo.DatosTerminal;
 import pe.puriy.rutas.dominio.modelo.Terminal;
+import pe.puriy.rutas.dominio.modelo.TerminalId;
 import pe.puriy.rutas.dominio.modelo.TerminalesDeEjemplo;
 
 @JooqTest
@@ -96,6 +98,20 @@ class TerminalJooqAdapterIT {
         assertThat(enLima)
                 .extracting(terminal -> terminal.datos().nombre())
                 .containsExactly("Terminal Javier Prado", "Terminal Plaza Norte");
+    }
+
+    @Test
+    void lista_por_identificadores_ignorando_los_que_no_existen() {
+        var plazaNorte = Terminal.registrar(TerminalesDeEjemplo.plazaNorte());
+        var trujillo = Terminal.registrar(TerminalesDeEjemplo.trujillo());
+        adaptador.agregar(plazaNorte);
+        adaptador.agregar(trujillo);
+        adaptador.agregar(Terminal.registrar(TerminalesDeEjemplo.javierPrado()));
+
+        var encontrados = adaptador.listarPorIds(List.of(plazaNorte.id(), trujillo.id(), TerminalId.nuevo()));
+
+        assertThat(encontrados).extracting(Terminal::id).containsExactlyInAnyOrder(plazaNorte.id(), trujillo.id());
+        assertThat(adaptador.listarPorIds(List.of())).isEmpty();
     }
 
     @Test

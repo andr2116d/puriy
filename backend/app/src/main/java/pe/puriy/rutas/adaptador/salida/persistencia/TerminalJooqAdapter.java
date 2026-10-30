@@ -2,6 +2,7 @@ package pe.puriy.rutas.adaptador.salida.persistencia;
 
 import static puriy.basedatos.rutas.Tables.TERMINALES;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
@@ -74,6 +75,16 @@ class TerminalJooqAdapter implements TerminalRepositoryPort {
         return dsl.selectFrom(TERMINALES)
                 .where(DSL.lower(TERMINALES.CIUDAD).eq(DSL.lower(DSL.val(ciudad))))
                 .orderBy(TERMINALES.NOMBRE)
+                .fetch(TerminalPersistenceMapper::aDominio);
+    }
+
+    @Override
+    public List<Terminal> listarPorIds(Collection<TerminalId> ids) {
+        if (ids.isEmpty()) {
+            return List.of();
+        }
+        return dsl.selectFrom(TERMINALES)
+                .where(TERMINALES.ID.in(ids.stream().map(TerminalId::valor).toList()))
                 .fetch(TerminalPersistenceMapper::aDominio);
     }
 

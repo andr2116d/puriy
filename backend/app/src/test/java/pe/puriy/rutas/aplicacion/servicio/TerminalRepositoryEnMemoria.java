@@ -1,9 +1,11 @@
 package pe.puriy.rutas.aplicacion.servicio;
 
+import java.util.Collection;
 import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import pe.puriy.compartido.dominio.EdicionConcurrenteException;
 import pe.puriy.rutas.aplicacion.puerto.salida.TerminalRepositoryPort;
@@ -53,6 +55,11 @@ class TerminalRepositoryEnMemoria implements TerminalRepositoryPort {
                 .filter(terminal -> terminal.datos().ciudad().equalsIgnoreCase(ciudad))
                 .sorted(POR_CIUDAD_Y_NOMBRE)
                 .toList();
+    }
+
+    @Override
+    public List<Terminal> listarPorIds(Collection<TerminalId> ids) {
+        return ids.stream().map(terminales::get).filter(Objects::nonNull).toList();
     }
 
     private void exigirNombreUnico(Terminal candidato) {
