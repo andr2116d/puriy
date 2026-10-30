@@ -1,0 +1,11 @@
+CREATE EXTENSION IF NOT EXISTS btree_gist;
+
+CREATE SCHEMA rutas;
+CREATE SCHEMA tarifas;
+CREATE SCHEMA reservas;
+CREATE SCHEMA compras;
+CREATE SCHEMA pagos;
+CREATE SCHEMA boletos;
+CREATE SCHEMA operacion;
+CREATE SCHEMA notificaciones;
+CREATE SCHEMA identidad;
