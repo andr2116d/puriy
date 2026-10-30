@@ -69,6 +69,9 @@ val integrationTest = tasks.register<Test>("integrationTest") {
     group = LifecycleBasePlugin.VERIFICATION_GROUP
     testClassesDirs = sourceSets["test"].output.classesDirs
     classpath = sourceSets["test"].runtimeClasspath
+    useJUnitPlatform {
+        excludeEngines("archunit")
+    }
     filter {
         includeTestsMatching("*IT")
     }
