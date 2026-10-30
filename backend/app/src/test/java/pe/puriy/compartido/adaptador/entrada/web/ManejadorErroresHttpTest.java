@@ -63,6 +63,25 @@ class ManejadorErroresHttpTest {
     }
 
     @Test
+    void un_json_ilegible_responde_400_con_su_codigo() {
+        assertThat(mvc.post()
+                        .uri("/prueba/validacion")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{esto no es json"))
+                .hasStatus(HttpStatus.BAD_REQUEST)
+                .bodyJson()
+                .hasPathSatisfying("$.codigo", codigo -> assertThat(codigo).isEqualTo("solicitud-ilegible"));
+    }
+
+    @Test
+    void los_errores_que_genera_spring_tambien_llevan_codigo() {
+        assertThat(mvc.delete().uri("/prueba/regla"))
+                .hasStatus(HttpStatus.METHOD_NOT_ALLOWED)
+                .bodyJson()
+                .hasPathSatisfying("$.codigo", codigo -> assertThat(codigo).isEqualTo("solicitud-rechazada"));
+    }
+
+    @Test
     void un_error_inesperado_responde_500_sin_revelar_detalles_internos() {
         assertThat(mvc.get().uri("/prueba/inesperado"))
                 .hasStatus(HttpStatus.INTERNAL_SERVER_ERROR)
