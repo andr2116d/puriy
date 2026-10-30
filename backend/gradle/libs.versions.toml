@@ -2,6 +2,7 @@
 java = "25"
 spring-boot = "4.1.2"
 spring-modulith = "2.1.2"
+springdoc = "3.2.0"
 lombok = "1.18.48"
 jspecify = "1.0.1"
 errorprone = "2.51.0"
@@ -24,6 +25,7 @@ spring-boot-starter-jooq = { module = "org.springframework.boot:spring-boot-star
 spring-boot-starter-flyway = { module = "org.springframework.boot:spring-boot-starter-flyway" }
 spring-boot-docker-compose = { module = "org.springframework.boot:spring-boot-docker-compose" }
 spring-modulith-starter-core = { module = "org.springframework.modulith:spring-modulith-starter-core" }
+springdoc-webmvc = { module = "org.springdoc:springdoc-openapi-starter-webmvc-ui", version.ref = "springdoc" }
 flyway-core = { module = "org.flywaydb:flyway-core" }
 flyway-postgresql = { module = "org.flywaydb:flyway-database-postgresql" }
 postgresql = { module = "org.postgresql:postgresql" }
