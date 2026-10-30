@@ -1,0 +1,14 @@
+package pe.puriy.rutas.adaptador.entrada.web;
+
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
+import pe.puriy.rutas.dominio.modelo.DatosTerminal;
+
+record RegistrarTerminalRequest(
+        @NotBlank @Size(max = DatosTerminal.MAXIMO_NOMBRE) String nombre,
+        @NotBlank @Size(max = DatosTerminal.MAXIMO_CIUDAD) String ciudad,
+
+        @NotBlank @Size(max = DatosTerminal.MAXIMO_DIRECCION) String direccion,
+
+        boolean vende,
+        boolean embarca) {}
