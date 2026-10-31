@@ -22,7 +22,7 @@ class SalidaDisponibleController {
 
     static final String RUTA = "/api/v1/salidas-disponibles";
 
-    private static final CacheControl CACHE_CORTA =
+    static final CacheControl CACHE_CORTA =
             CacheControl.maxAge(Duration.ofSeconds(30)).cachePublic();
 
     private final BuscarSalidasDisponiblesUseCase buscarSalidasDisponibles;
