@@ -1,0 +1,41 @@
+name: Infraestructura global
+
+on:
+  workflow_dispatch:
+    inputs:
+      accion:
+        type: choice
+        options: [plan, apply]
+        default: plan
+
+permissions:
+  contents: read
+  id-token: write
+
+concurrency:
+  group: infra-global
+  cancel-in-progress: false
+
+jobs:
+  plan:
+    name: Plan
+    runs-on: ubuntu-latest
+    env:
+      AWS_REGION: ${{ vars.AWS_REGION }}
+      AWS_ROL: ${{ vars.AWS_ROL_LECTURA }}
+    steps:
+      - name: Plan
+        run: echo "Terraform calcula el plan de la infraestructura global"
+
+  aplicar:
+    name: Aplicar
+    needs: plan
+    if: inputs.accion == 'apply'
+    runs-on: ubuntu-latest
+    environment: global
+    env:
+      AWS_REGION: ${{ vars.AWS_REGION }}
+      AWS_ROL: ${{ vars.AWS_ROL_DESPLIEGUE }}
+    steps:
+      - name: Aplicar
+        run: echo "Terraform aplica la infraestructura global"
