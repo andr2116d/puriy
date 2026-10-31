@@ -27,6 +27,8 @@ val empaquetar = tasks.register<Zip>("empaquetar") {
     group = LifecycleBasePlugin.BUILD_GROUP
     archiveFileName.set("${project.name}.zip")
     destinationDirectory.set(layout.buildDirectory.dir("distributions"))
+    isPreserveFileTimestamps = false
+    isReproducibleFileOrder = true
     from(salidaPrincipal)
     into("lib") {
         from(configurations.named("runtimeClasspath"))
