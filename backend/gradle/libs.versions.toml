@@ -13,6 +13,7 @@ uuid-creator = "6.1.1"
 spotless = "8.9.0"
 errorprone-plugin = "5.1.1"
 jooq-docker = "9.0.9"
+aws-lambda-core = "1.4.1"
 
 [libraries]
 spring-boot-bom = { module = "org.springframework.boot:spring-boot-dependencies", version.ref = "spring-boot" }
@@ -40,10 +41,14 @@ spring-modulith-starter-test = { module = "org.springframework.modulith:spring-m
 testcontainers-postgresql = { module = "org.testcontainers:testcontainers-postgresql" }
 testcontainers-junit = { module = "org.testcontainers:testcontainers-junit-jupiter" }
 junit-launcher = { module = "org.junit.platform:junit-platform-launcher" }
+junit-jupiter = { module = "org.junit.jupiter:junit-jupiter" }
+assertj-core = { module = "org.assertj:assertj-core" }
+mockito-core = { module = "org.mockito:mockito-core" }
 archunit = { module = "com.tngtech.archunit:archunit-junit5", version.ref = "archunit" }
 
 lombok = { module = "org.projectlombok:lombok", version.ref = "lombok" }
 jspecify = { module = "org.jspecify:jspecify", version.ref = "jspecify" }
+aws-lambda-core = { module = "com.amazonaws:aws-lambda-java-core", version.ref = "aws-lambda-core" }
 errorprone-core = { module = "com.google.errorprone:error_prone_core", version.ref = "errorprone" }
 nullaway = { module = "com.uber.nullaway:nullaway", version.ref = "nullaway" }
 
