@@ -175,9 +175,9 @@ jobs:
           terraform_wrapper: false
       - name: Formato
         run: terraform fmt -check -recursive -diff infra
-      - name: Validar cada carpeta
+      - name: Validar cada ambiente
         run: |
-          find infra -name '*.tf' -printf '%h\n' | sort -u | while read -r carpeta; do
+          find infra/ambientes -name '*.tf' -printf '%h\n' | sort -u | while read -r carpeta; do
             echo "Validando $carpeta"
             terraform -chdir="$carpeta" init -backend=false -input=false
             terraform -chdir="$carpeta" validate
