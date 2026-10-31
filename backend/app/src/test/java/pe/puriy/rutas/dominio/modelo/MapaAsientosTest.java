@@ -20,6 +20,27 @@ class MapaAsientosTest {
     }
 
     @Test
+    void un_bus_de_un_solo_piso_tiene_todos_sus_asientos_abajo() {
+        var mapa = BusesDeEjemplo.unPiso().mapa();
+
+        assertThat(mapa.capacidad()).isEqualTo(40);
+        assertThat(mapa.cantidadPisos()).isEqualTo(1);
+    }
+
+    @Test
+    void la_ultima_fila_puede_ocupar_todo_el_ancho_sin_pasillo() {
+        var asientos = new ArrayList<>(asientos(1, 1, 10, DOS_MAS_DOS, TipoAsiento.ESTANDAR));
+        for (var columna = 1; columna <= Asiento.MAXIMO_COLUMNAS; columna++) {
+            asientos.add(new Asiento(40 + columna, 1, 11, columna, TipoAsiento.ESTANDAR));
+        }
+
+        var mapa = new MapaAsientos(asientos);
+
+        assertThat(mapa.capacidad()).isEqualTo(45);
+        assertThat(mapa.cantidadPisos()).isEqualTo(1);
+    }
+
+    @Test
     void los_asientos_quedan_ordenados_por_numero() {
         var mapa = new MapaAsientos(
                 List.of(new Asiento(2, 1, 1, 2, TipoAsiento.CAMA), new Asiento(1, 1, 1, 1, TipoAsiento.CAMA)));

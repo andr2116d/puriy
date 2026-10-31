@@ -42,6 +42,22 @@ class BusesApiIT {
     }
 
     @Test
+    void registra_un_bus_economico_de_un_solo_piso() {
+        assertThat(post("""
+                        {"placa": "H6J-654", "asientos": [
+                          {"numero": 1, "piso": 1, "fila": 1, "columna": 1, "tipo": "ESTANDAR"},
+                          {"numero": 2, "piso": 1, "fila": 1, "columna": 2, "tipo": "ESTANDAR"},
+                          {"numero": 3, "piso": 1, "fila": 1, "columna": 4, "tipo": "ESTANDAR"},
+                          {"numero": 4, "piso": 1, "fila": 1, "columna": 5, "tipo": "ESTANDAR"}]}
+                        """))
+                .hasStatus(HttpStatus.CREATED)
+                .bodyJson()
+                .hasPathSatisfying("$.cantidadPisos", pisos -> assertThat(pisos).isEqualTo(1))
+                .hasPathSatisfying(
+                        "$.capacidad", capacidad -> assertThat(capacidad).isEqualTo(4));
+    }
+
+    @Test
     void no_registra_dos_buses_con_la_misma_placa() {
         assertThat(post(mapaDeDosPisos("F5G-321"))).hasStatus(HttpStatus.CREATED);
 
