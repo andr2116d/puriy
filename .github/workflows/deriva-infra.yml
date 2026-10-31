@@ -2,55 +2,37 @@ name: Cambios fuera de Terraform
 
 on:
   schedule:
-    # Lunes 08:00 en Perú
     - cron: '0 13 * * 1'
   workflow_dispatch:
 
 permissions:
   contents: read
-  id-token: write
 
 jobs:
   comparar:
-    name: Comparar ${{ matrix.ambiente }}
+    name: Comparar dev
     runs-on: ubuntu-latest
-    timeout-minutes: 15
-    strategy:
-      fail-fast: false
-      matrix:
-        include:
-          - ambiente: global
-            carpeta: infra/global
-          - ambiente: dev
-            carpeta: infra/ambientes/dev
-          - ambiente: prod
-            carpeta: infra/ambientes/prod
-    env:
-      AWS_ROL: ${{ vars.AWS_ROL_LECTURA }}
-      CARPETA: ${{ matrix.carpeta }}
+    timeout-minutes: 20
+    environment: dev
+    permissions:
+      contents: read
+      id-token: write
     steps:
       - uses: actions/checkout@v7
-      - name: Buscar el Terraform del ambiente
-        id: terraform
-        run: |
-          if [ -n "$AWS_ROL" ] && compgen -G "$CARPETA/*.tf" > /dev/null; then
-            echo "existe=true" >> "$GITHUB_OUTPUT"
-          else
-            echo "existe=false" >> "$GITHUB_OUTPUT"
-            echo "::notice::$CARPETA todavía no tiene Terraform o falta AWS_ROL_LECTURA"
-          fi
+      - uses: ./.github/actions/empaquetar-funciones
       - name: Entrar a AWS
-        if: steps.terraform.outputs.existe == 'true'
+        uses: aws-actions/configure-aws-credentials@v6
+        with:
+          role-to-assume: ${{ vars.AWS_ROLE_ARN }}
+          aws-region: ${{ vars.AWS_REGION }}
+      - name: Iniciar Terraform
         uses: ./.github/actions/preparar-terraform
         with:
-          rol: ${{ vars.AWS_ROL_LECTURA }}
-          carpeta: ${{ matrix.carpeta }}
+          carpeta: infra/ambientes/dev
           region: ${{ vars.AWS_REGION }}
           bucket: ${{ vars.TF_STATE_BUCKET }}
-      # Con -detailed-exitcode, cualquier diferencia con AWS hace fallar el paso
       - name: Comparar
-        if: steps.terraform.outputs.existe == 'true'
-        working-directory: ${{ matrix.carpeta }}
+        working-directory: infra/ambientes/dev
         run: terraform plan -input=false -lock=false -no-color -detailed-exitcode
 
   avisar:

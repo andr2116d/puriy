@@ -29,6 +29,16 @@ Con la API levantada, el contrato está en `http://localhost:8080/swagger-ui.htm
 
 Cada Lambda queda en `backend/funciones/<nombre>/build/distributions/<nombre>.zip`, para el runtime `java25`.
 
+## Infraestructura
+
+Terraform de dev en `infra/ambientes/dev`. Se aplica al integrar un PR a `dev`. El estado vive en S3. Para trabajar en local, crea `backend.hcl` con `bucket`, `key`, `region` y `profile`, y genera antes los ZIP de las Lambdas con `./gradlew assemble`.
+
+```bash
+terraform -chdir=infra/ambientes/dev init -backend-config=backend.hcl
+terraform -chdir=infra/ambientes/dev validate
+terraform -chdir=infra/ambientes/dev plan
+```
+
 ## Frontend
 
 Requisitos: Node 22 o superior y pnpm.

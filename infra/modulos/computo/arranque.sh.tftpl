@@ -1,0 +1,43 @@
+#!/bin/bash
+set -euo pipefail
+
+dnf install -y docker jq
+systemctl enable --now docker
+
+cat > /usr/local/bin/puriy-api <<'SCRIPT'
+#!/bin/bash
+set -euo pipefail
+
+aws ecr get-login-password --region ${region} | docker login --username AWS --password-stdin ${registro}
+docker pull ${imagen}
+
+credenciales=$(aws secretsmanager get-secret-value --region ${region} --secret-id '${secreto_arn}' --query SecretString --output text)
+
+export SPRING_DATASOURCE_URL='jdbc:postgresql://${direccion}:5432/${base}?sslmode=require'
+export SPRING_DATASOURCE_USERNAME=$(jq -r .username <<< "$credenciales")
+export SPRING_DATASOURCE_PASSWORD=$(jq -r .password <<< "$credenciales")
+
+exec docker run --rm --name puriy-api -p 8080:8080 \
+  -e SPRING_DATASOURCE_URL -e SPRING_DATASOURCE_USERNAME -e SPRING_DATASOURCE_PASSWORD \
+  ${imagen}
+SCRIPT
+chmod +x /usr/local/bin/puriy-api
+
+cat > /etc/systemd/system/puriy-api.service <<'UNIDAD'
+[Unit]
+Description=API de Puriy
+After=docker.service
+Requires=docker.service
+
+[Service]
+ExecStartPre=-/usr/bin/docker rm -f puriy-api
+ExecStart=/usr/local/bin/puriy-api
+Restart=always
+RestartSec=15
+
+[Install]
+WantedBy=multi-user.target
+UNIDAD
+
+systemctl daemon-reload
+systemctl enable --now puriy-api
