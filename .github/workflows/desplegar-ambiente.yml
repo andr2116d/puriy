@@ -1,0 +1,76 @@
+name: Desplegar ambiente
+
+on:
+  workflow_call:
+    inputs:
+      ambiente:
+        required: true
+        type: string
+      version:
+        required: true
+        type: string
+      backend:
+        type: boolean
+        default: true
+      funciones:
+        type: boolean
+        default: true
+      frontend:
+        type: boolean
+        default: true
+
+permissions:
+  contents: read
+  id-token: write
+
+env:
+  AMBIENTE: ${{ inputs.ambiente }}
+  VERSION: ${{ inputs.version }}
+  AWS_REGION: ${{ vars.AWS_REGION }}
+
+jobs:
+  plan:
+    name: Plan (${{ inputs.ambiente }})
+    runs-on: ubuntu-latest
+    env:
+      AWS_ROL: ${{ vars.AWS_ROL_LECTURA }}
+    steps:
+      - name: Entrar a AWS
+        run: echo "Se entra a AWS por OIDC con el rol de solo lectura"
+      - name: Plan
+        run: echo "Terraform calcula el plan de $AMBIENTE con la versión $VERSION"
+
+  aplicar:
+    name: Aplicar (${{ inputs.ambiente }})
+    needs: plan
+    runs-on: ubuntu-latest
+    environment: ${{ inputs.ambiente }}
+    env:
+      AWS_ROL: ${{ vars.AWS_ROL_DESPLIEGUE }}
+    steps:
+      - name: Aplicar
+        run: echo "Terraform aplica el plan en $AMBIENTE"
+      - name: Backend
+        if: inputs.backend
+        run: echo "Se reemplazan las instancias del backend por la versión $VERSION"
+      - name: Funciones
+        if: inputs.funciones
+        run: echo "Se actualizan las Lambdas a la versión $VERSION"
+
+  frontend:
+    name: Frontend (${{ inputs.ambiente }})
+    needs: aplicar
+    if: inputs.frontend
+    runs-on: ubuntu-latest
+    steps:
+      - name: Publicar
+        run: echo "Se sube el frontend a S3 y se limpia la caché de CloudFront"
+
+  humo:
+    name: Pruebas de humo (${{ inputs.ambiente }})
+    needs: [aplicar, frontend]
+    if: always() && needs.aplicar.result == 'success' && needs.frontend.result != 'failure'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Probar
+        run: echo "Se comprueba que la API y la página de $AMBIENTE respondan"

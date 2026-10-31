@@ -1,0 +1,20 @@
+name: Sincronizar dev
+
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  hotfix:
+    name: Llevar el hotfix a dev
+    if: contains(github.event.head_commit.message, '/hotfix/')
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - name: PR a dev
+        run: echo "Se abre un PR de main a dev con el hotfix"

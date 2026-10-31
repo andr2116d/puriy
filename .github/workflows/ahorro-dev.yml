@@ -1,0 +1,45 @@
+name: Ahorro en dev
+
+on:
+  schedule:
+    # 23:00 en Perú
+    - cron: '0 4 * * *'
+    # 07:00 en Perú, de lunes a sábado
+    - cron: '0 12 * * 1-6'
+  workflow_dispatch:
+    inputs:
+      accion:
+        type: choice
+        options: [apagar, encender]
+        required: true
+
+permissions:
+  contents: read
+  id-token: write
+
+concurrency:
+  group: despliegue-dev
+  cancel-in-progress: false
+
+jobs:
+  apagar:
+    name: Apagar dev
+    if: github.event.schedule == '0 4 * * *' || inputs.accion == 'apagar'
+    runs-on: ubuntu-latest
+    environment: dev
+    env:
+      AWS_ROL: ${{ vars.AWS_ROL_DESPLIEGUE }}
+    steps:
+      - name: Apagar
+        run: echo "Se dejan en cero las instancias de dev y se detiene la base de datos"
+
+  encender:
+    name: Encender dev
+    if: github.event.schedule == '0 12 * * 1-6' || inputs.accion == 'encender'
+    runs-on: ubuntu-latest
+    environment: dev
+    env:
+      AWS_ROL: ${{ vars.AWS_ROL_DESPLIEGUE }}
+    steps:
+      - name: Encender
+        run: echo "Se enciende la base de datos de dev y se levantan las instancias"

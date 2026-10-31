@@ -1,0 +1,69 @@
+name: Despliegue a prod
+
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: write
+  id-token: write
+  issues: write
+
+concurrency:
+  group: despliegue-prod
+  cancel-in-progress: false
+
+jobs:
+  preparar:
+    name: Preparar
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+    steps:
+      - name: Versión
+        id: version
+        run: |
+          echo "Se toma el número de versión del título del PR"
+          echo "version=v0.0.0" >> "$GITHUB_OUTPUT"
+      - name: Reutilizar lo de dev
+        run: echo "Se reutilizan la imagen y las Lambdas probadas en dev"
+      - name: Frontend
+        run: echo "Se compila el frontend apuntando a la API de prod"
+
+  desplegar:
+    name: Desplegar
+    needs: preparar
+    uses: ./.github/workflows/desplegar-ambiente.yml
+    with:
+      ambiente: prod
+      version: ${{ needs.preparar.outputs.version }}
+    secrets: inherit
+
+  publicar:
+    name: Publicar la versión
+    needs: [preparar, desplegar]
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - name: Versión
+        run: echo "Se crea la versión en GitHub con sus notas"
+
+  revertir:
+    name: Revertir
+    needs: [preparar, desplegar]
+    if: failure() && needs.desplegar.result == 'failure'
+    uses: ./.github/workflows/rollback-prod.yml
+    with:
+      version: anterior
+      motivo: Falló el despliegue
+    secrets: inherit
+
+  avisar:
+    name: Avisar
+    needs: [preparar, desplegar]
+    if: always()
+    uses: ./.github/workflows/avisar.yml
+    with:
+      titulo: "Despliegue a prod: ${{ needs.desplegar.result }}"
+    secrets: inherit
