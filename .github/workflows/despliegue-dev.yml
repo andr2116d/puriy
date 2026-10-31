@@ -19,6 +19,7 @@ jobs:
     name: Qué cambió
     runs-on: ubuntu-latest
     outputs:
+      backend: ${{ steps.filtro.outputs.backend }}
       frontend: ${{ steps.filtro.outputs.frontend }}
     steps:
       - uses: actions/checkout@v7
@@ -26,6 +27,12 @@ jobs:
         id: filtro
         with:
           filters: |
+            backend:
+              - 'backend/app/**'
+              - 'backend/build-logic/**'
+              - 'backend/gradle/**'
+              - 'backend/*.kts'
+              - 'infra/**'
             frontend:
               - 'frontend/**'
               - 'infra/**'
@@ -48,9 +55,27 @@ jobs:
     needs: cambios
     if: needs.cambios.outputs.frontend == 'true'
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
+      - uses: actions/checkout@v7
+      - uses: pnpm/action-setup@v6
+        with:
+          package_json_file: frontend/package.json
+      - uses: actions/setup-node@v7
+        with:
+          node-version: '24'
+          cache: pnpm
+          cache-dependency-path: frontend/pnpm-lock.yaml
       - name: Compilar
-        run: echo "Se compila el frontend apuntando a la API de dev"
+        working-directory: frontend
+        run: |
+          pnpm install --frozen-lockfile
+          pnpm build
+      - uses: actions/upload-artifact@v7
+        with:
+          name: web
+          path: frontend/dist
+          retention-days: 1
 
   desplegar:
     name: Desplegar
@@ -63,6 +88,7 @@ jobs:
     with:
       ambiente: dev
       version: ${{ github.sha }}
+      backend: ${{ needs.cambios.outputs.backend == 'true' }}
       frontend: ${{ needs.cambios.outputs.frontend == 'true' }}
 
   avisar:

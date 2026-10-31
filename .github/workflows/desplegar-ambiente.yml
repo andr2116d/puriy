@@ -9,6 +9,9 @@ on:
       version:
         required: true
         type: string
+      backend:
+        type: boolean
+        default: true
       frontend:
         type: boolean
         default: true
@@ -73,10 +76,18 @@ jobs:
     name: Aplicar (${{ inputs.ambiente }})
     needs: plan
     runs-on: ubuntu-latest
+    timeout-minutes: 45
     environment: ${{ inputs.ambiente }}
     permissions:
       contents: read
       id-token: write
+    outputs:
+      bucket-web: ${{ steps.salidas.outputs.bucket-web }}
+      distribucion: ${{ steps.salidas.outputs.distribucion }}
+      url: ${{ steps.salidas.outputs.url }}
+      funciones: ${{ steps.salidas.outputs.funciones }}
+      repositorio: ${{ steps.salidas.outputs.repositorio }}
+      grupo: ${{ steps.salidas.outputs.grupo }}
     steps:
       - uses: actions/checkout@v7
       - name: Entrar a AWS
@@ -102,21 +113,116 @@ jobs:
         if: needs.plan.outputs.hay-terraform == 'true'
         working-directory: infra/ambientes/${{ inputs.ambiente }}
         run: terraform apply -input=false -auto-approve
+      - name: Leer las salidas
+        id: salidas
+        if: needs.plan.outputs.hay-terraform == 'true'
+        working-directory: infra/ambientes/${{ inputs.ambiente }}
+        run: |
+          {
+            echo "bucket-web=$(terraform output -raw bucket_web)"
+            echo "distribucion=$(terraform output -raw distribucion_id)"
+            echo "url=$(terraform output -raw url_web)"
+            echo "funciones=$(terraform output -json funciones | jq -r 'join(" ")')"
+            echo "repositorio=$(terraform output -raw repositorio_url)"
+            echo "grupo=$(terraform output -raw grupo_autoescalado)"
+          } >> "$GITHUB_OUTPUT"
+
+  imagen:
+    name: Imagen (${{ inputs.ambiente }})
+    needs: aplicar
+    if: inputs.backend && needs.aplicar.outputs.repositorio != ''
+    runs-on: ubuntu-24.04-arm
+    timeout-minutes: 20
+    environment: ${{ inputs.ambiente }}
+    permissions:
+      contents: read
+      id-token: write
+    env:
+      GRUPO: ${{ needs.aplicar.outputs.grupo }}
+      REPOSITORIO: ${{ needs.aplicar.outputs.repositorio }}
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-java@v6
+        with:
+          distribution: temurin
+          java-version: '25'
+      - uses: gradle/actions/setup-gradle@v6
+      - name: Compilar
+        working-directory: backend
+        run: ./gradlew :app:bootJar
+      - name: Entrar a AWS
+        uses: aws-actions/configure-aws-credentials@v6
+        with:
+          role-to-assume: ${{ vars.AWS_ROLE_ARN }}
+          aws-region: ${{ vars.AWS_REGION }}
+      - uses: aws-actions/amazon-ecr-login@v2
+      - name: Subir la imagen
+        working-directory: backend/app
+        run: |
+          docker build -t "$REPOSITORIO:actual" -t "$REPOSITORIO:$VERSION" .
+          docker push --all-tags "$REPOSITORIO"
+      - name: Renovar las EC2
+        run: |
+          aws autoscaling start-instance-refresh \
+            --auto-scaling-group-name "$GRUPO" \
+            --preferences MinHealthyPercentage=50
 
   frontend:
     name: Frontend (${{ inputs.ambiente }})
     needs: aplicar
-    if: inputs.frontend
+    if: inputs.frontend && needs.aplicar.outputs.bucket-web != ''
     runs-on: ubuntu-latest
+    timeout-minutes: 10
+    environment: ${{ inputs.ambiente }}
+    permissions:
+      contents: read
+      id-token: write
+    env:
+      BUCKET: ${{ needs.aplicar.outputs.bucket-web }}
+      DISTRIBUCION: ${{ needs.aplicar.outputs.distribucion }}
     steps:
+      - uses: actions/download-artifact@v8
+        with:
+          name: web
+          path: web
+      - name: Entrar a AWS
+        uses: aws-actions/configure-aws-credentials@v6
+        with:
+          role-to-assume: ${{ vars.AWS_ROLE_ARN }}
+          aws-region: ${{ vars.AWS_REGION }}
       - name: Publicar
-        run: echo "Se sube el frontend a S3 y se limpia la caché de CloudFront"
+        run: |
+          aws s3 sync web "s3://$BUCKET" --delete
+          aws cloudfront create-invalidation --distribution-id "$DISTRIBUCION" --paths '/*'
 
   humo:
     name: Pruebas de humo (${{ inputs.ambiente }})
-    needs: [aplicar, frontend]
-    if: always() && needs.aplicar.result == 'success' && needs.frontend.result != 'failure'
+    needs: [aplicar, imagen, frontend]
+    if: always() && needs.aplicar.outputs.url != '' && !contains(needs.*.result, 'failure')
     runs-on: ubuntu-latest
+    timeout-minutes: 15
+    environment: ${{ inputs.ambiente }}
+    permissions:
+      contents: read
+      id-token: write
+    env:
+      FUNCIONES: ${{ needs.aplicar.outputs.funciones }}
+      URL: ${{ needs.aplicar.outputs.url }}
     steps:
-      - name: Probar
-        run: echo "Se comprueba que la API y la página de $AMBIENTE respondan"
+      - name: Web
+        run: curl -fsS -o /dev/null --retry 20 --retry-delay 15 --retry-all-errors "$URL"
+      - name: API
+        run: curl -fsS -o /dev/null --retry 40 --retry-delay 15 --retry-all-errors "$URL/api/v1/terminales"
+      - name: Entrar a AWS
+        uses: aws-actions/configure-aws-credentials@v6
+        with:
+          role-to-assume: ${{ vars.AWS_ROLE_ARN }}
+          aws-region: ${{ vars.AWS_REGION }}
+      - name: Lambdas
+        run: |
+          for funcion in $FUNCIONES; do
+            error=$(aws lambda invoke --function-name "$funcion" --cli-binary-format raw-in-base64-out \
+              --payload '{}' --query FunctionError --output text /tmp/respuesta.json)
+            echo "$funcion: $(cat /tmp/respuesta.json)"
+            [ "$error" = "None" ]
+          done
