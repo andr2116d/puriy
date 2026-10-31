@@ -1,5 +1,6 @@
 package pe.puriy.reservas.aplicacion.servicio;
 
+import java.time.Instant;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -37,6 +38,23 @@ class SalidaPortEnMemoria implements SalidaPort {
                 .filter(candidata -> candidata.origen().ciudad().equals(ciudadOrigen))
                 .filter(candidata -> candidata.destino().ciudad().equals(ciudadDestino))
                 .filter(candidata -> fechaDe(candidata).equals(fechaDeViaje))
+                .toList();
+    }
+
+    @Override
+    public List<SalidaCandidata> buscarDesdeCiudad(String ciudad, LocalDate fechaDeViaje) {
+        return candidatas.stream()
+                .filter(candidata -> candidata.origen().ciudad().equals(ciudad))
+                .filter(candidata -> fechaDe(candidata).equals(fechaDeViaje))
+                .toList();
+    }
+
+    @Override
+    public List<SalidaCandidata> buscarHaciaCiudad(String ciudad, Instant desde, Instant hasta) {
+        return candidatas.stream()
+                .filter(candidata -> candidata.destino().ciudad().equals(ciudad))
+                .filter(candidata -> !candidata.origen().horaDePaso().isBefore(desde))
+                .filter(candidata -> candidata.origen().horaDePaso().isBefore(hasta))
                 .toList();
     }
 

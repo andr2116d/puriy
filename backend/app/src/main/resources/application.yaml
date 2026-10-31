@@ -28,6 +28,9 @@ management:
 
 puriy:
   reservas:
+    conexiones:
+      escala-minima: 1h
+      escala-maxima: 12h
     liberacion:
       habilitada: true
       cada: PT30S

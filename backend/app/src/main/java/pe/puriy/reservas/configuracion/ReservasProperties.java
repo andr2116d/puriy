@@ -13,12 +13,17 @@ import pe.puriy.reservas.dominio.modelo.Canal;
 @Validated
 @ConfigurationProperties("puriy.reservas")
 public record ReservasProperties(
-        @NotNull @Valid Liberacion liberacion, @NotEmpty Map<Canal, @NotNull @Valid Reglas> canales) {
+        @NotNull @Valid Liberacion liberacion,
+        @NotEmpty Map<Canal, @NotNull @Valid Reglas> canales,
+        @NotNull @Valid Conexiones conexiones) {
 
     public record Liberacion(
             boolean habilitada,
             @NotNull Duration cada,
             @Positive int lote) {}
+
+    public record Conexiones(
+            @NotNull Duration escalaMinima, @NotNull Duration escalaMaxima) {}
 
     public record Reglas(
             @NotNull Duration retencion,

@@ -177,6 +177,9 @@ class BuscarSalidasDisponiblesServiceTest {
 
     private BuscarSalidasDisponiblesService servicioEn(Instant ahora) {
         return new BuscarSalidasDisponiblesService(
-                escenario.salidas, escenario.reservas, escenario.tarifas, POLITICA, EscenarioDeReservas.relojEn(ahora));
+                escenario.salidas,
+                new CalculadoraDeDisponibilidad(escenario.reservas, escenario.tarifas),
+                POLITICA,
+                EscenarioDeReservas.relojEn(ahora));
     }
 }

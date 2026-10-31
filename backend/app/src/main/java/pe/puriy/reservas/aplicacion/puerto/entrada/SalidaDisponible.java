@@ -9,6 +9,8 @@ import pe.puriy.compartido.dominio.TipoServicio;
 import pe.puriy.reservas.dominio.modelo.ParadaDelTramo;
 import pe.puriy.reservas.dominio.modelo.PisoDisponible;
 import pe.puriy.reservas.dominio.modelo.SalidaCandidata;
+import pe.puriy.reservas.dominio.modelo.Tramo;
+import pe.puriy.reservas.dominio.modelo.TramoDeSalida;
 
 public record SalidaDisponible(
         SalidaId id,
@@ -21,6 +23,10 @@ public record SalidaDisponible(
 
     public SalidaDisponible {
         pisos = List.copyOf(pisos);
+    }
+
+    public TramoDeSalida tramo() {
+        return new TramoDeSalida(id, new Tramo(origen.orden(), destino.orden()));
     }
 
     public static Optional<SalidaDisponible> conLugarPara(
