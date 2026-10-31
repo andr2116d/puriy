@@ -69,12 +69,17 @@ jobs:
     needs: cambios
     runs-on: ubuntu-latest
     steps:
-      - name: Título y rama
-        run: echo "Se revisa que el título del PR y el nombre de la rama sigan la convención"
-      - name: Commits
-        run: echo "Se revisa que cada commit siga Conventional Commits"
-      - name: Archivos
-        run: echo "Se revisa que no entren archivos prohibidos al repo"
+      - uses: actions/checkout@v7
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          fetch-depth: 0
+      - name: Título, rama, commits, archivos y migraciones
+        env:
+          TITULO: ${{ github.event.pull_request.title }}
+          RAMA: ${{ github.head_ref }}
+          BASE: ${{ github.event.pull_request.base.sha }}
+          CABEZA: ${{ github.event.pull_request.head.sha }}
+        run: python3 .github/scripts/revisar_convenciones.py
 
   backend:
     name: Backend
