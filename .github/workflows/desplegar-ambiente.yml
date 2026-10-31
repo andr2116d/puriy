@@ -21,7 +21,6 @@ on:
 
 permissions:
   contents: read
-  id-token: write
 
 env:
   AMBIENTE: ${{ inputs.ambiente }}
@@ -33,6 +32,9 @@ jobs:
     name: Plan (${{ inputs.ambiente }})
     runs-on: ubuntu-latest
     environment: ${{ inputs.ambiente }}
+    permissions:
+      contents: read
+      id-token: write
     env:
       CARPETA: infra/ambientes/${{ inputs.ambiente }}
     outputs:
@@ -73,6 +75,9 @@ jobs:
     needs: plan
     runs-on: ubuntu-latest
     environment: ${{ inputs.ambiente }}
+    permissions:
+      contents: read
+      id-token: write
     steps:
       - uses: actions/checkout@v7
       - name: Entrar a AWS

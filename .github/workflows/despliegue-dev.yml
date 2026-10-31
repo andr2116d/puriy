@@ -9,7 +9,6 @@ on:
 
 permissions:
   contents: read
-  id-token: write
 
 concurrency:
   group: despliegue-dev
@@ -69,6 +68,9 @@ jobs:
     name: Desplegar
     needs: [cambios, construir-backend, construir-funciones, construir-frontend]
     if: always() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled')
+    permissions:
+      contents: read
+      id-token: write
     uses: ./.github/workflows/desplegar-ambiente.yml
     with:
       ambiente: dev
@@ -76,7 +78,6 @@ jobs:
       backend: ${{ needs.cambios.outputs.backend == 'true' }}
       funciones: ${{ needs.cambios.outputs.funciones == 'true' }}
       frontend: ${{ needs.cambios.outputs.frontend == 'true' }}
-    secrets: inherit
 
   avisar:
     name: Avisar
