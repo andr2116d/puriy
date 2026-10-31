@@ -23,6 +23,7 @@ dist/
 crash.log
 *.auto.tfvars
 terraform.tfvars
+backend.hcl
 
 # Configuración local
 .env
