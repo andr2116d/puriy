@@ -14,17 +14,44 @@ jobs:
   comparar:
     name: Comparar ${{ matrix.ambiente }}
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     strategy:
       fail-fast: false
       matrix:
-        ambiente: [global, dev, prod]
+        include:
+          - ambiente: global
+            carpeta: infra/global
+          - ambiente: dev
+            carpeta: infra/ambientes/dev
+          - ambiente: prod
+            carpeta: infra/ambientes/prod
     env:
-      AMBIENTE: ${{ matrix.ambiente }}
-      AWS_REGION: ${{ vars.AWS_REGION }}
       AWS_ROL: ${{ vars.AWS_ROL_LECTURA }}
+      CARPETA: ${{ matrix.carpeta }}
     steps:
+      - uses: actions/checkout@v7
+      - name: Buscar el Terraform del ambiente
+        id: terraform
+        run: |
+          if [ -n "$AWS_ROL" ] && compgen -G "$CARPETA/*.tf" > /dev/null; then
+            echo "existe=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "existe=false" >> "$GITHUB_OUTPUT"
+            echo "::notice::$CARPETA todavía no tiene Terraform o falta AWS_ROL_LECTURA"
+          fi
+      - name: Entrar a AWS
+        if: steps.terraform.outputs.existe == 'true'
+        uses: ./.github/actions/preparar-terraform
+        with:
+          rol: ${{ vars.AWS_ROL_LECTURA }}
+          carpeta: ${{ matrix.carpeta }}
+          region: ${{ vars.AWS_REGION }}
+          bucket: ${{ vars.TF_ESTADO_BUCKET }}
+      # Con -detailed-exitcode, cualquier diferencia con AWS hace fallar el paso
       - name: Comparar
-        run: echo "Terraform compara lo que hay en AWS con el código de $AMBIENTE"
+        if: steps.terraform.outputs.existe == 'true'
+        working-directory: ${{ matrix.carpeta }}
+        run: terraform plan -input=false -lock=false -no-color -detailed-exitcode
 
   avisar:
     name: Avisar

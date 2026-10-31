@@ -40,12 +40,11 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       backend: ${{ steps.filtro.outputs.backend }}
-      migraciones: ${{ steps.filtro.outputs.migraciones }}
       funciones: ${{ steps.filtro.outputs.funciones }}
       frontend: ${{ steps.filtro.outputs.frontend }}
       infra: ${{ steps.filtro.outputs.infra }}
     steps:
-      - uses: dorny/paths-filter@v3
+      - uses: dorny/paths-filter@v4
         id: filtro
         with:
           filters: |
@@ -54,97 +53,178 @@ jobs:
               - 'backend/build-logic/**'
               - 'backend/gradle/**'
               - 'backend/*.kts'
-            migraciones:
-              - 'backend/app/src/main/resources/db/migration/**'
+              - '.github/workflows/pr-revision.yml'
             funciones:
               - 'backend/funciones/**'
+              - 'backend/build-logic/**'
               - 'backend/gradle/**'
+              - 'backend/*.kts'
+              - '.github/workflows/pr-revision.yml'
             frontend:
               - 'frontend/**'
+              - '.github/workflows/pr-revision.yml'
             infra:
               - 'infra/**'
+              - '.github/actions/preparar-terraform/**'
+              - '.github/workflows/pr-revision.yml'
 
   convenciones:
     name: Convenciones
     needs: cambios
     runs-on: ubuntu-latest
     steps:
-      - name: Título y rama
-        run: echo "Se revisa que el título del PR y el nombre de la rama sigan la convención"
-      - name: Commits
-        run: echo "Se revisa que cada commit siga Conventional Commits"
-      - name: Archivos
-        run: echo "Se revisa que no entren archivos prohibidos al repo"
+      - uses: actions/checkout@v7
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          fetch-depth: 0
+      - name: Título, rama, commits, archivos y migraciones
+        env:
+          TITULO: ${{ github.event.pull_request.title }}
+          RAMA: ${{ github.head_ref }}
+          BASE: ${{ github.event.pull_request.base.sha }}
+          CABEZA: ${{ github.event.pull_request.head.sha }}
+        run: python3 .github/scripts/revisar_convenciones.py
 
   backend:
     name: Backend
     needs: cambios
     if: needs.cambios.outputs.backend == 'true'
     runs-on: ubuntu-latest
+    timeout-minutes: 30
+    defaults:
+      run:
+        working-directory: backend
     steps:
-      - name: Preparar
-        run: echo "Se instalan Java 25 y Gradle"
-      - name: Probar
-        run: echo "Se compila y se prueba el backend con ./gradlew check"
-      - name: Migraciones
-        if: needs.cambios.outputs.migraciones == 'true'
-        run: echo "Se revisa que las migraciones nuevas se apliquen en una base limpia"
+      - uses: actions/checkout@v7
+      - uses: actions/setup-java@v6
+        with:
+          distribution: temurin
+          java-version: '25'
+      - uses: gradle/actions/setup-gradle@v6
+      - name: Formato
+        run: ./gradlew spotlessCheck
+      - name: Compilar, analizar y probar
+        run: ./gradlew :app:check
+      - name: Guardar el reporte si falló
+        if: failure()
+        uses: actions/upload-artifact@v7
+        with:
+          name: reporte-backend
+          path: backend/app/build/reports/tests/
+          retention-days: 7
 
   funciones:
     name: Funciones
     needs: cambios
     if: needs.cambios.outputs.funciones == 'true'
     runs-on: ubuntu-latest
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: backend
     steps:
-      - name: Probar
-        run: echo "Se compilan y se prueban las tres Lambdas"
+      - uses: actions/checkout@v7
+      - uses: actions/setup-java@v6
+        with:
+          distribution: temurin
+          java-version: '25'
+      - uses: gradle/actions/setup-gradle@v6
+      - name: Formato
+        run: ./gradlew spotlessCheck
+      - name: Probar y empaquetar las tres Lambdas
+        run: >-
+          ./gradlew
+          :funciones:generar-boleto:check :funciones:generar-boleto:empaquetar
+          :funciones:enviar-correo:check :funciones:enviar-correo:empaquetar
+          :funciones:publicar-asientos:check :funciones:publicar-asientos:empaquetar
 
   frontend:
     name: Frontend
     needs: cambios
     if: needs.cambios.outputs.frontend == 'true'
     runs-on: ubuntu-latest
+    timeout-minutes: 10
+    defaults:
+      run:
+        working-directory: frontend
     steps:
-      - name: Probar
-        run: echo "Se revisa el código y se prueba el frontend"
-      - name: Compilar
-        run: echo "Se comprueba que el frontend compile"
+      - uses: actions/checkout@v7
+      - uses: pnpm/action-setup@v6
+        with:
+          package_json_file: frontend/package.json
+      - uses: actions/setup-node@v7
+        with:
+          node-version: '24'
+          cache: pnpm
+          cache-dependency-path: frontend/pnpm-lock.yaml
+      - name: Instalar
+        run: pnpm install --frozen-lockfile
+      - name: Lint, tipos, pruebas y build
+        run: pnpm check
 
   infra:
     name: Infraestructura
     needs: cambios
     if: needs.cambios.outputs.infra == 'true'
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     permissions:
       contents: read
       id-token: write
-      pull-requests: write
-    env:
-      AWS_REGION: ${{ vars.AWS_REGION }}
-      AWS_ROL: ${{ vars.AWS_ROL_LECTURA }}
-      INFRACOST_API_KEY: ${{ secrets.INFRACOST_API_KEY }}
     steps:
-      - name: Revisar
-        run: echo "Se revisan el formato y la validez de Terraform"
-      - name: Costo
-        run: echo "Se estima el costo mensual con Infracost"
-      - name: Plan de dev
-        run: echo "Se comenta en el PR el plan de Terraform para dev"
-      - name: Plan de prod
-        if: github.base_ref == 'main'
-        run: echo "Se comenta en el PR el plan de Terraform para prod"
+      - uses: actions/checkout@v7
+      - uses: hashicorp/setup-terraform@v4
+        with:
+          terraform_wrapper: false
+      - name: Formato
+        run: terraform fmt -check -recursive -diff infra
+      - name: Validar cada carpeta
+        run: |
+          find infra -name '*.tf' -printf '%h\n' | sort -u | while read -r carpeta; do
+            echo "Validando $carpeta"
+            terraform -chdir="$carpeta" init -backend=false -input=false
+            terraform -chdir="$carpeta" validate
+          done
+      - name: Entrar a AWS
+        # GitHub no entrega el token de AWS a los PR que vienen de un fork
+        if: hashFiles('infra/global/*.tf') != '' && vars.AWS_ROL_LECTURA != '' && github.event.pull_request.head.repo.full_name == github.repository
+        uses: ./.github/actions/preparar-terraform
+        with:
+          rol: ${{ vars.AWS_ROL_LECTURA }}
+          carpeta: infra/global
+          region: ${{ vars.AWS_REGION }}
+          bucket: ${{ vars.TF_ESTADO_BUCKET }}
+      - name: Plan de global
+        if: hashFiles('infra/global/*.tf') != '' && vars.AWS_ROL_LECTURA != '' && github.event.pull_request.head.repo.full_name == github.repository
+        working-directory: infra/global
+        run: |
+          terraform plan -input=false -lock=false -no-color | tee plan.txt
+          {
+            echo '### Plan de global'
+            echo '```'
+            cat plan.txt
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+      - name: Sin plan
+        if: hashFiles('infra/global/*.tf') == '' || vars.AWS_ROL_LECTURA == ''
+        run: echo "::notice::Todavía no hay Terraform o falta AWS_ROL_LECTURA, no se calcula el plan"
 
   seguridad:
     name: Seguridad
     needs: cambios
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
       - name: Dependencias
-        run: echo "Se buscan vulnerabilidades en las dependencias nuevas"
+        uses: actions/dependency-review-action@v5
+        with:
+          fail-on-severity: high
       - name: Secretos
-        run: echo "Se buscan llaves o contraseñas subidas por error"
-      - name: Código
-        run: echo "Se analiza el código con CodeQL"
+        uses: gitleaks/gitleaks-action@v3
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
 
   veredicto:
     name: Veredicto

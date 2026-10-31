@@ -1,0 +1,39 @@
+name: Preparar Terraform
+description: Entra a AWS por OIDC e inicia Terraform en una carpeta de infra
+
+inputs:
+  rol:
+    description: ARN del rol de AWS
+    required: true
+  carpeta:
+    description: Carpeta de Terraform
+    required: true
+  region:
+    description: Región de AWS
+    required: true
+  bucket:
+    description: Bucket del estado de Terraform
+    required: true
+
+runs:
+  using: composite
+  steps:
+    - uses: aws-actions/configure-aws-credentials@v6
+      with:
+        role-to-assume: ${{ inputs.rol }}
+        aws-region: ${{ inputs.region }}
+    - uses: hashicorp/setup-terraform@v4
+      with:
+        terraform_wrapper: false
+    - name: Iniciar Terraform
+      shell: bash
+      working-directory: ${{ inputs.carpeta }}
+      env:
+        BUCKET: ${{ inputs.bucket }}
+        CARPETA: ${{ inputs.carpeta }}
+        REGION: ${{ inputs.region }}
+      run: >-
+        terraform init -input=false
+        -backend-config="bucket=$BUCKET"
+        -backend-config="key=${CARPETA#infra/}/terraform.tfstate"
+        -backend-config="region=$REGION"

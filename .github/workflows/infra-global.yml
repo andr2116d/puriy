@@ -20,22 +20,36 @@ jobs:
   plan:
     name: Plan
     runs-on: ubuntu-latest
-    env:
-      AWS_REGION: ${{ vars.AWS_REGION }}
-      AWS_ROL: ${{ vars.AWS_ROL_LECTURA }}
+    timeout-minutes: 15
     steps:
+      - uses: actions/checkout@v7
+      - name: Entrar a AWS
+        uses: ./.github/actions/preparar-terraform
+        with:
+          rol: ${{ vars.AWS_ROL_LECTURA }}
+          carpeta: infra/global
+          region: ${{ vars.AWS_REGION }}
+          bucket: ${{ vars.TF_ESTADO_BUCKET }}
       - name: Plan
-        run: echo "Terraform calcula el plan de la infraestructura global"
+        working-directory: infra/global
+        run: terraform plan -input=false -lock=false -no-color
 
   aplicar:
     name: Aplicar
     needs: plan
     if: inputs.accion == 'apply'
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     environment: global
-    env:
-      AWS_REGION: ${{ vars.AWS_REGION }}
-      AWS_ROL: ${{ vars.AWS_ROL_DESPLIEGUE }}
     steps:
+      - uses: actions/checkout@v7
+      - name: Entrar a AWS
+        uses: ./.github/actions/preparar-terraform
+        with:
+          rol: ${{ vars.AWS_ROL_DESPLIEGUE }}
+          carpeta: infra/global
+          region: ${{ vars.AWS_REGION }}
+          bucket: ${{ vars.TF_ESTADO_BUCKET }}
       - name: Aplicar
-        run: echo "Terraform aplica la infraestructura global"
+        working-directory: infra/global
+        run: terraform apply -input=false -auto-approve

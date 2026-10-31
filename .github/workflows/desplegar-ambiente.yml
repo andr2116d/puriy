@@ -34,22 +34,52 @@ jobs:
     runs-on: ubuntu-latest
     env:
       AWS_ROL: ${{ vars.AWS_ROL_LECTURA }}
+      CARPETA: infra/ambientes/${{ inputs.ambiente }}
+    outputs:
+      hay-terraform: ${{ steps.terraform.outputs.existe }}
     steps:
+      - uses: actions/checkout@v7
+      - name: Buscar el Terraform del ambiente
+        id: terraform
+        run: |
+          if [ -n "$AWS_ROL" ] && compgen -G "$CARPETA/*.tf" > /dev/null; then
+            echo "existe=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "existe=false" >> "$GITHUB_OUTPUT"
+            echo "::notice::$AMBIENTE todavía no tiene Terraform o falta AWS_ROL_LECTURA"
+          fi
       - name: Entrar a AWS
-        run: echo "Se entra a AWS por OIDC con el rol de solo lectura"
+        if: steps.terraform.outputs.existe == 'true'
+        uses: ./.github/actions/preparar-terraform
+        with:
+          rol: ${{ vars.AWS_ROL_LECTURA }}
+          carpeta: infra/ambientes/${{ inputs.ambiente }}
+          region: ${{ vars.AWS_REGION }}
+          bucket: ${{ vars.TF_ESTADO_BUCKET }}
       - name: Plan
-        run: echo "Terraform calcula el plan de $AMBIENTE con la versión $VERSION"
+        if: steps.terraform.outputs.existe == 'true'
+        working-directory: ${{ env.CARPETA }}
+        run: terraform plan -input=false -lock=false -no-color
 
   aplicar:
     name: Aplicar (${{ inputs.ambiente }})
     needs: plan
     runs-on: ubuntu-latest
     environment: ${{ inputs.ambiente }}
-    env:
-      AWS_ROL: ${{ vars.AWS_ROL_DESPLIEGUE }}
     steps:
+      - uses: actions/checkout@v7
+      - name: Entrar a AWS
+        if: needs.plan.outputs.hay-terraform == 'true'
+        uses: ./.github/actions/preparar-terraform
+        with:
+          rol: ${{ vars.AWS_ROL_DESPLIEGUE }}
+          carpeta: infra/ambientes/${{ inputs.ambiente }}
+          region: ${{ vars.AWS_REGION }}
+          bucket: ${{ vars.TF_ESTADO_BUCKET }}
       - name: Aplicar
-        run: echo "Terraform aplica el plan en $AMBIENTE"
+        if: needs.plan.outputs.hay-terraform == 'true'
+        working-directory: infra/ambientes/${{ inputs.ambiente }}
+        run: terraform apply -input=false -auto-approve
       - name: Backend
         if: inputs.backend
         run: echo "Se reemplazan las instancias del backend por la versión $VERSION"
