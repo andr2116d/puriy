@@ -1,0 +1,31 @@
+@import 'tailwindcss';
+
+@font-face {
+  font-family: 'Sora';
+  src: url('./fuentes/Sora-Variable.woff2') format('woff2');
+  font-weight: 100 800;
+  font-display: swap;
+}
+
+@theme {
+  --font-sans: 'Sora', ui-sans-serif, system-ui, sans-serif;
+  --color-noche: #0b1f3a;
+  --color-ruta: #16325c;
+  --color-amanecer: #ff7a1a;
+  --color-ambar: #ffb347;
+  --color-arena: #f6f4ef;
+  --color-neblina: #b8c3d2;
+
+  --animate-amanecer: amanecer 1.2s cubic-bezier(0.16, 1, 0.3, 1) both;
+
+  @keyframes amanecer {
+    from {
+      transform: translateY(100%);
+    }
+  }
+}
+
+::selection {
+  background: var(--color-amanecer);
+  color: var(--color-noche);
+}
