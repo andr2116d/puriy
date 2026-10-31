@@ -186,12 +186,17 @@ jobs:
     needs: cambios
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
       - name: Dependencias
-        run: echo "Se buscan vulnerabilidades en las dependencias nuevas"
+        uses: actions/dependency-review-action@v5
+        with:
+          fail-on-severity: high
       - name: Secretos
-        run: echo "Se buscan llaves o contraseñas subidas por error"
-      - name: Código
-        run: echo "Se analiza el código con CodeQL"
+        uses: gitleaks/gitleaks-action@v3
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
 
   veredicto:
     name: Veredicto
