@@ -21,7 +21,6 @@ on:
 
 permissions:
   contents: read
-  id-token: write
 
 env:
   AMBIENTE: ${{ inputs.ambiente }}
@@ -32,30 +31,40 @@ jobs:
   plan:
     name: Plan (${{ inputs.ambiente }})
     runs-on: ubuntu-latest
+    environment: ${{ inputs.ambiente }}
+    permissions:
+      contents: read
+      id-token: write
     env:
-      AWS_ROL: ${{ vars.AWS_ROL_LECTURA }}
       CARPETA: infra/ambientes/${{ inputs.ambiente }}
     outputs:
       hay-terraform: ${{ steps.terraform.outputs.existe }}
     steps:
       - uses: actions/checkout@v7
+      - name: Entrar a AWS
+        uses: aws-actions/configure-aws-credentials@v6
+        with:
+          role-to-assume: ${{ vars.AWS_ROLE_ARN }}
+          aws-region: ${{ vars.AWS_REGION }}
+      - name: Comprobar el rol
+        run: aws sts get-caller-identity --query Arn --output text
       - name: Buscar el Terraform del ambiente
         id: terraform
         run: |
-          if [ -n "$AWS_ROL" ] && compgen -G "$CARPETA/*.tf" > /dev/null; then
+          if compgen -G "$CARPETA/*.tf" > /dev/null; then
             echo "existe=true" >> "$GITHUB_OUTPUT"
           else
             echo "existe=false" >> "$GITHUB_OUTPUT"
-            echo "::notice::$AMBIENTE todavía no tiene Terraform o falta AWS_ROL_LECTURA"
+            echo "::notice::$AMBIENTE todavía no tiene Terraform"
           fi
-      - name: Entrar a AWS
+      - name: Iniciar Terraform
         if: steps.terraform.outputs.existe == 'true'
         uses: ./.github/actions/preparar-terraform
         with:
-          rol: ${{ vars.AWS_ROL_LECTURA }}
+          rol: ${{ vars.AWS_ROLE_ARN }}
           carpeta: infra/ambientes/${{ inputs.ambiente }}
           region: ${{ vars.AWS_REGION }}
-          bucket: ${{ vars.TF_ESTADO_BUCKET }}
+          bucket: ${{ vars.TF_STATE_BUCKET }}
       - name: Plan
         if: steps.terraform.outputs.existe == 'true'
         working-directory: ${{ env.CARPETA }}
@@ -66,16 +75,19 @@ jobs:
     needs: plan
     runs-on: ubuntu-latest
     environment: ${{ inputs.ambiente }}
+    permissions:
+      contents: read
+      id-token: write
     steps:
       - uses: actions/checkout@v7
       - name: Entrar a AWS
         if: needs.plan.outputs.hay-terraform == 'true'
         uses: ./.github/actions/preparar-terraform
         with:
-          rol: ${{ vars.AWS_ROL_DESPLIEGUE }}
+          rol: ${{ vars.AWS_ROLE_ARN }}
           carpeta: infra/ambientes/${{ inputs.ambiente }}
           region: ${{ vars.AWS_REGION }}
-          bucket: ${{ vars.TF_ESTADO_BUCKET }}
+          bucket: ${{ vars.TF_STATE_BUCKET }}
       - name: Aplicar
         if: needs.plan.outputs.hay-terraform == 'true'
         working-directory: infra/ambientes/${{ inputs.ambiente }}

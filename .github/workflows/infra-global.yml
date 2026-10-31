@@ -29,7 +29,7 @@ jobs:
           rol: ${{ vars.AWS_ROL_LECTURA }}
           carpeta: infra/global
           region: ${{ vars.AWS_REGION }}
-          bucket: ${{ vars.TF_ESTADO_BUCKET }}
+          bucket: ${{ vars.TF_STATE_BUCKET }}
       - name: Plan
         working-directory: infra/global
         run: terraform plan -input=false -lock=false -no-color
@@ -46,10 +46,10 @@ jobs:
       - name: Entrar a AWS
         uses: ./.github/actions/preparar-terraform
         with:
-          rol: ${{ vars.AWS_ROL_DESPLIEGUE }}
+          rol: ${{ vars.AWS_ROLE_ARN }}
           carpeta: infra/global
           region: ${{ vars.AWS_REGION }}
-          bucket: ${{ vars.TF_ESTADO_BUCKET }}
+          bucket: ${{ vars.TF_STATE_BUCKET }}
       - name: Aplicar
         working-directory: infra/global
         run: terraform apply -input=false -auto-approve

@@ -193,7 +193,7 @@ jobs:
           rol: ${{ vars.AWS_ROL_LECTURA }}
           carpeta: infra/global
           region: ${{ vars.AWS_REGION }}
-          bucket: ${{ vars.TF_ESTADO_BUCKET }}
+          bucket: ${{ vars.TF_STATE_BUCKET }}
       - name: Plan de global
         if: hashFiles('infra/global/*.tf') != '' && vars.AWS_ROL_LECTURA != '' && github.event.pull_request.head.repo.full_name == github.repository
         working-directory: infra/global
