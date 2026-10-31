@@ -7,6 +7,8 @@ import java.time.Duration;
 import java.util.List;
 import org.junit.jupiter.api.Test;
 import pe.puriy.compartido.dominio.EdicionConcurrenteException;
+import pe.puriy.compartido.dominio.RutaId;
+import pe.puriy.compartido.dominio.TipoServicio;
 import pe.puriy.rutas.aplicacion.puerto.entrada.ActualizarRutaCommand;
 import pe.puriy.rutas.dominio.excepcion.ParadaSinEmbarqueException;
 import pe.puriy.rutas.dominio.excepcion.RutaNoEncontradaException;
@@ -14,9 +16,7 @@ import pe.puriy.rutas.dominio.modelo.BusId;
 import pe.puriy.rutas.dominio.modelo.DatosRuta;
 import pe.puriy.rutas.dominio.modelo.Parada;
 import pe.puriy.rutas.dominio.modelo.Ruta;
-import pe.puriy.rutas.dominio.modelo.RutaId;
 import pe.puriy.rutas.dominio.modelo.Salida;
-import pe.puriy.rutas.dominio.modelo.TipoServicio;
 
 class ActualizarRutaServiceTest {
 

@@ -3,6 +3,7 @@ package pe.puriy.rutas.dominio.modelo;
 import java.util.List;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
+import pe.puriy.compartido.dominio.TerminalId;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class RutasDeEjemplo {

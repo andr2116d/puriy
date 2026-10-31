@@ -7,6 +7,7 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
+import pe.puriy.compartido.dominio.RutaId;
 import pe.puriy.compartido.dominio.ZonaHoraria;
 import pe.puriy.rutas.aplicacion.puerto.entrada.CambiarBusDeSalidaCommand;
 import pe.puriy.rutas.aplicacion.puerto.entrada.DetalleSalida;
@@ -14,7 +15,6 @@ import pe.puriy.rutas.aplicacion.puerto.entrada.ProgramarSalidaCommand;
 import pe.puriy.rutas.aplicacion.puerto.entrada.ProgramarSalidasRecurrentesCommand;
 import pe.puriy.rutas.dominio.modelo.BusId;
 import pe.puriy.rutas.dominio.modelo.Recurrencia;
-import pe.puriy.rutas.dominio.modelo.RutaId;
 import pe.puriy.rutas.dominio.modelo.SalidaId;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)

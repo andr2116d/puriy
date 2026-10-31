@@ -1,7 +1,7 @@
 package pe.puriy.rutas.dominio.excepcion;
 
 import pe.puriy.compartido.dominio.ReglaDeNegocioException;
-import pe.puriy.rutas.dominio.modelo.TerminalId;
+import pe.puriy.compartido.dominio.TerminalId;
 
 public final class ParadasInvalidasException extends ReglaDeNegocioException {
 

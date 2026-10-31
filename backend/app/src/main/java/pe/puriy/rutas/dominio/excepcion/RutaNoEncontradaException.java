@@ -1,7 +1,7 @@
 package pe.puriy.rutas.dominio.excepcion;
 
 import pe.puriy.compartido.dominio.RecursoNoEncontradoException;
-import pe.puriy.rutas.dominio.modelo.RutaId;
+import pe.puriy.compartido.dominio.RutaId;
 
 public final class RutaNoEncontradaException extends RecursoNoEncontradoException {
 

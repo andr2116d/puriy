@@ -7,6 +7,7 @@ import lombok.Builder;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
+import pe.puriy.compartido.dominio.RutaId;
 
 @Getter
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)

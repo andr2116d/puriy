@@ -4,6 +4,7 @@ import java.time.Duration;
 import java.util.HashSet;
 import java.util.List;
 import pe.puriy.compartido.dominio.NormalizadorDeTexto;
+import pe.puriy.compartido.dominio.TerminalId;
 import pe.puriy.rutas.dominio.excepcion.ParadasInvalidasException;
 
 public record DatosRuta(String nombre, List<Parada> paradas) {

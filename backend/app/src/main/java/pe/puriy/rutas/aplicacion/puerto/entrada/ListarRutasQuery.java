@@ -1,7 +1,7 @@
 package pe.puriy.rutas.aplicacion.puerto.entrada;
 
 import org.jspecify.annotations.Nullable;
-import pe.puriy.rutas.dominio.modelo.TerminalId;
+import pe.puriy.compartido.dominio.TerminalId;
 
 public record ListarRutasQuery(@Nullable TerminalId terminalId) {
 

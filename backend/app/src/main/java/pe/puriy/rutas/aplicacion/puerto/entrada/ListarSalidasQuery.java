@@ -4,10 +4,10 @@ import java.time.Instant;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import org.jspecify.annotations.Nullable;
+import pe.puriy.compartido.dominio.RutaId;
 import pe.puriy.compartido.dominio.ZonaHoraria;
 import pe.puriy.rutas.dominio.excepcion.PeriodoDeConsultaInvalidoException;
 import pe.puriy.rutas.dominio.modelo.BusId;
-import pe.puriy.rutas.dominio.modelo.RutaId;
 
 public record ListarSalidasQuery(
         LocalDate desde,

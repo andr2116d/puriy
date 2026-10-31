@@ -3,11 +3,11 @@ package pe.puriy.rutas.dominio.servicio;
 import java.util.Map;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
+import pe.puriy.compartido.dominio.TerminalId;
 import pe.puriy.rutas.dominio.excepcion.ParadaSinEmbarqueException;
 import pe.puriy.rutas.dominio.excepcion.TerminalNoEncontradoException;
 import pe.puriy.rutas.dominio.modelo.DatosRuta;
 import pe.puriy.rutas.dominio.modelo.Terminal;
-import pe.puriy.rutas.dominio.modelo.TerminalId;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class VerificadorDeParadas {

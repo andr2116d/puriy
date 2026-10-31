@@ -7,13 +7,13 @@ import static pe.puriy.rutas.aplicacion.servicio.EscenarioDeSalidas.RELOJ;
 
 import java.time.Duration;
 import org.junit.jupiter.api.Test;
+import pe.puriy.compartido.dominio.RutaId;
+import pe.puriy.compartido.dominio.TipoServicio;
 import pe.puriy.rutas.aplicacion.puerto.entrada.ProgramarSalidaCommand;
 import pe.puriy.rutas.dominio.excepcion.BusNoEncontradoException;
 import pe.puriy.rutas.dominio.excepcion.BusOcupadoException;
 import pe.puriy.rutas.dominio.excepcion.RutaNoEncontradaException;
 import pe.puriy.rutas.dominio.modelo.BusId;
-import pe.puriy.rutas.dominio.modelo.RutaId;
-import pe.puriy.rutas.dominio.modelo.TipoServicio;
 
 class ProgramarSalidaServiceTest {
 

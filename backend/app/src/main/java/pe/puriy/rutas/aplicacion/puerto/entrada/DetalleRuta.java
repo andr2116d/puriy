@@ -4,10 +4,10 @@ import java.time.Duration;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.IntStream;
+import pe.puriy.compartido.dominio.RutaId;
+import pe.puriy.compartido.dominio.TerminalId;
 import pe.puriy.rutas.dominio.modelo.Ruta;
-import pe.puriy.rutas.dominio.modelo.RutaId;
 import pe.puriy.rutas.dominio.modelo.Terminal;
-import pe.puriy.rutas.dominio.modelo.TerminalId;
 
 public record DetalleRuta(RutaId id, String nombre, long version, Duration duracionTotal, List<DetalleParada> paradas) {
 

@@ -5,6 +5,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import java.time.Duration;
 import org.junit.jupiter.api.Test;
+import pe.puriy.compartido.dominio.TerminalId;
 
 class ParadaTest {
 

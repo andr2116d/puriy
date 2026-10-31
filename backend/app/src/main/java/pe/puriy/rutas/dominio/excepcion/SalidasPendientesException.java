@@ -1,8 +1,8 @@
 package pe.puriy.rutas.dominio.excepcion;
 
 import pe.puriy.compartido.dominio.ReglaDeNegocioException;
+import pe.puriy.compartido.dominio.RutaId;
 import pe.puriy.rutas.dominio.modelo.BusId;
-import pe.puriy.rutas.dominio.modelo.RutaId;
 
 public final class SalidasPendientesException extends ReglaDeNegocioException {
 

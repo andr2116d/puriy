@@ -5,13 +5,13 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import pe.puriy.compartido.dominio.RutaId;
 import pe.puriy.rutas.aplicacion.puerto.entrada.DetalleParada;
 import pe.puriy.rutas.aplicacion.puerto.entrada.DetalleRuta;
 import pe.puriy.rutas.aplicacion.puerto.entrada.ListarRutasQuery;
 import pe.puriy.rutas.aplicacion.puerto.entrada.ObtenerRutaQuery;
 import pe.puriy.rutas.dominio.excepcion.RutaNoEncontradaException;
 import pe.puriy.rutas.dominio.modelo.Ruta;
-import pe.puriy.rutas.dominio.modelo.RutaId;
 
 class ConsultarRutasServiceTest {
 

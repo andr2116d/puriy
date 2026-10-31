@@ -4,12 +4,12 @@ import java.time.Instant;
 import java.util.List;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
+import pe.puriy.compartido.dominio.TipoServicio;
 import pe.puriy.rutas.dominio.excepcion.RecurrenciaInvalidaException;
 import pe.puriy.rutas.dominio.modelo.BusId;
 import pe.puriy.rutas.dominio.modelo.Recurrencia;
 import pe.puriy.rutas.dominio.modelo.Ruta;
 import pe.puriy.rutas.dominio.modelo.Salida;
-import pe.puriy.rutas.dominio.modelo.TipoServicio;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class ProgramadorDeSalidas {

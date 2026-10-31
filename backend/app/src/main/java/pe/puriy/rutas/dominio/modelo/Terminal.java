@@ -4,6 +4,7 @@ import lombok.Builder;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
+import pe.puriy.compartido.dominio.TerminalId;
 
 @Getter
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)

@@ -1,4 +1,4 @@
-package pe.puriy.rutas.dominio.modelo;
+package pe.puriy.compartido.dominio;
 
 public enum TipoServicio {
     ECONOMICO,

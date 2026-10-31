@@ -15,13 +15,13 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import pe.puriy.compartido.dominio.TerminalId;
 import pe.puriy.rutas.aplicacion.puerto.entrada.ActualizarTerminalUseCase;
 import pe.puriy.rutas.aplicacion.puerto.entrada.ListarTerminalesQuery;
 import pe.puriy.rutas.aplicacion.puerto.entrada.ListarTerminalesUseCase;
 import pe.puriy.rutas.aplicacion.puerto.entrada.ObtenerTerminalQuery;
 import pe.puriy.rutas.aplicacion.puerto.entrada.ObtenerTerminalUseCase;
 import pe.puriy.rutas.aplicacion.puerto.entrada.RegistrarTerminalUseCase;
-import pe.puriy.rutas.dominio.modelo.TerminalId;
 
 @RestController
 @RequestMapping(TerminalController.RUTA)

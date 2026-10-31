@@ -2,9 +2,9 @@ package pe.puriy.rutas.aplicacion.puerto.salida;
 
 import java.util.List;
 import java.util.Optional;
+import pe.puriy.compartido.dominio.RutaId;
+import pe.puriy.compartido.dominio.TerminalId;
 import pe.puriy.rutas.dominio.modelo.Ruta;
-import pe.puriy.rutas.dominio.modelo.RutaId;
-import pe.puriy.rutas.dominio.modelo.TerminalId;
 
 public interface RutaRepositoryPort {
 

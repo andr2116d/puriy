@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
+import pe.puriy.compartido.dominio.RutaId;
 import pe.puriy.rutas.aplicacion.puerto.entrada.CambiarBusDeSalidaUseCase;
 import pe.puriy.rutas.aplicacion.puerto.entrada.ListarSalidasQuery;
 import pe.puriy.rutas.aplicacion.puerto.entrada.ListarSalidasUseCase;
@@ -25,7 +26,6 @@ import pe.puriy.rutas.aplicacion.puerto.entrada.ObtenerSalidaUseCase;
 import pe.puriy.rutas.aplicacion.puerto.entrada.ProgramarSalidaUseCase;
 import pe.puriy.rutas.aplicacion.puerto.entrada.ProgramarSalidasRecurrentesUseCase;
 import pe.puriy.rutas.dominio.modelo.BusId;
-import pe.puriy.rutas.dominio.modelo.RutaId;
 import pe.puriy.rutas.dominio.modelo.SalidaId;
 
 @RestController

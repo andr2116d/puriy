@@ -16,10 +16,10 @@ import org.springframework.dao.DataIntegrityViolationException;
 import pe.puriy.ContenedoresDePrueba;
 import pe.puriy.compartido.dominio.EdicionConcurrenteException;
 import pe.puriy.compartido.dominio.IdentificadorUnico;
+import pe.puriy.compartido.dominio.TerminalId;
 import pe.puriy.rutas.dominio.excepcion.TerminalDuplicadoException;
 import pe.puriy.rutas.dominio.modelo.DatosTerminal;
 import pe.puriy.rutas.dominio.modelo.Terminal;
-import pe.puriy.rutas.dominio.modelo.TerminalId;
 import pe.puriy.rutas.dominio.modelo.TerminalesDeEjemplo;
 
 @JooqTest

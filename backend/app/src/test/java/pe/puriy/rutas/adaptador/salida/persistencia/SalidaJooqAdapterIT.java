@@ -15,6 +15,7 @@ import org.springframework.boot.jooq.test.autoconfigure.JooqTest;
 import org.springframework.context.annotation.Import;
 import pe.puriy.ContenedoresDePrueba;
 import pe.puriy.compartido.dominio.EdicionConcurrenteException;
+import pe.puriy.compartido.dominio.TipoServicio;
 import pe.puriy.rutas.dominio.excepcion.BusOcupadoException;
 import pe.puriy.rutas.dominio.modelo.Bus;
 import pe.puriy.rutas.dominio.modelo.BusesDeEjemplo;
@@ -25,7 +26,6 @@ import pe.puriy.rutas.dominio.modelo.Ruta;
 import pe.puriy.rutas.dominio.modelo.Salida;
 import pe.puriy.rutas.dominio.modelo.Terminal;
 import pe.puriy.rutas.dominio.modelo.TerminalesDeEjemplo;
-import pe.puriy.rutas.dominio.modelo.TipoServicio;
 
 @JooqTest
 @ImportAutoConfiguration(FlywayAutoConfiguration.class)

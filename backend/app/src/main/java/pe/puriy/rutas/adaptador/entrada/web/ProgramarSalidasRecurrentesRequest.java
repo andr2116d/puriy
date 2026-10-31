@@ -7,7 +7,7 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
 import java.util.UUID;
-import pe.puriy.rutas.dominio.modelo.TipoServicio;
+import pe.puriy.compartido.dominio.TipoServicio;
 
 record ProgramarSalidasRecurrentesRequest(
         @NotNull UUID rutaId,

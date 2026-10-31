@@ -11,12 +11,12 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.Set;
 import org.junit.jupiter.api.Test;
+import pe.puriy.compartido.dominio.TipoServicio;
 import pe.puriy.rutas.aplicacion.puerto.entrada.DetalleSalida;
 import pe.puriy.rutas.aplicacion.puerto.entrada.ProgramarSalidasRecurrentesCommand;
 import pe.puriy.rutas.dominio.excepcion.BusNoEncontradoException;
 import pe.puriy.rutas.dominio.modelo.BusId;
 import pe.puriy.rutas.dominio.modelo.Recurrencia;
-import pe.puriy.rutas.dominio.modelo.TipoServicio;
 
 class ProgramarSalidasRecurrentesServiceTest {
 

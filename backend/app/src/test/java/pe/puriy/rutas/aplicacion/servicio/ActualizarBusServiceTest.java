@@ -8,6 +8,7 @@ import static pe.puriy.rutas.aplicacion.servicio.EscenarioDeSalidas.RELOJ;
 
 import org.junit.jupiter.api.Test;
 import pe.puriy.compartido.dominio.EdicionConcurrenteException;
+import pe.puriy.compartido.dominio.TipoServicio;
 import pe.puriy.rutas.aplicacion.puerto.entrada.ActualizarBusCommand;
 import pe.puriy.rutas.dominio.excepcion.BusNoEncontradoException;
 import pe.puriy.rutas.dominio.modelo.Bus;
@@ -15,7 +16,6 @@ import pe.puriy.rutas.dominio.modelo.BusId;
 import pe.puriy.rutas.dominio.modelo.BusesDeEjemplo;
 import pe.puriy.rutas.dominio.modelo.RutasDeEjemplo;
 import pe.puriy.rutas.dominio.modelo.Salida;
-import pe.puriy.rutas.dominio.modelo.TipoServicio;
 
 class ActualizarBusServiceTest {
 

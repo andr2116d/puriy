@@ -9,13 +9,13 @@ import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import org.junit.jupiter.api.Test;
+import pe.puriy.compartido.dominio.TerminalId;
 import pe.puriy.rutas.dominio.excepcion.ParadaSinEmbarqueException;
 import pe.puriy.rutas.dominio.excepcion.TerminalNoEncontradoException;
 import pe.puriy.rutas.dominio.modelo.DatosRuta;
 import pe.puriy.rutas.dominio.modelo.DatosTerminal;
 import pe.puriy.rutas.dominio.modelo.Parada;
 import pe.puriy.rutas.dominio.modelo.Terminal;
-import pe.puriy.rutas.dominio.modelo.TerminalId;
 import pe.puriy.rutas.dominio.modelo.TerminalesDeEjemplo;
 
 class VerificadorDeParadasTest {

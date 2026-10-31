@@ -1,6 +1,7 @@
 package pe.puriy.rutas.dominio.modelo;
 
 import java.time.Duration;
+import pe.puriy.compartido.dominio.TerminalId;
 
 public record Parada(TerminalId terminalId, Duration desdeAnterior) {
 

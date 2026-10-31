@@ -1,7 +1,7 @@
 package pe.puriy.rutas.aplicacion.puerto.entrada;
 
 import java.time.Duration;
-import pe.puriy.rutas.dominio.modelo.TerminalId;
+import pe.puriy.compartido.dominio.TerminalId;
 
 public record DetalleParada(
         int orden,

@@ -2,9 +2,9 @@ package pe.puriy.rutas.adaptador.salida.persistencia;
 
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
+import pe.puriy.compartido.dominio.TerminalId;
 import pe.puriy.rutas.dominio.modelo.DatosTerminal;
 import pe.puriy.rutas.dominio.modelo.Terminal;
-import pe.puriy.rutas.dominio.modelo.TerminalId;
 import puriy.basedatos.rutas.tables.records.TerminalesRecord;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)

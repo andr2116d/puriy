@@ -11,10 +11,10 @@ import org.jooq.impl.DSL;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Repository;
 import pe.puriy.compartido.dominio.EdicionConcurrenteException;
+import pe.puriy.compartido.dominio.TerminalId;
 import pe.puriy.rutas.aplicacion.puerto.salida.TerminalRepositoryPort;
 import pe.puriy.rutas.dominio.excepcion.TerminalDuplicadoException;
 import pe.puriy.rutas.dominio.modelo.Terminal;
-import pe.puriy.rutas.dominio.modelo.TerminalId;
 
 @Repository
 @RequiredArgsConstructor

@@ -4,10 +4,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import org.junit.jupiter.api.Test;
+import pe.puriy.compartido.dominio.TerminalId;
 import pe.puriy.rutas.aplicacion.puerto.entrada.ObtenerTerminalQuery;
 import pe.puriy.rutas.dominio.excepcion.TerminalNoEncontradoException;
 import pe.puriy.rutas.dominio.modelo.Terminal;
-import pe.puriy.rutas.dominio.modelo.TerminalId;
 import pe.puriy.rutas.dominio.modelo.TerminalesDeEjemplo;
 
 class ObtenerTerminalServiceTest {

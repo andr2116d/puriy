@@ -15,12 +15,12 @@ import org.springframework.context.annotation.Import;
 import org.springframework.dao.DataIntegrityViolationException;
 import pe.puriy.ContenedoresDePrueba;
 import pe.puriy.compartido.dominio.EdicionConcurrenteException;
+import pe.puriy.compartido.dominio.TerminalId;
 import pe.puriy.rutas.dominio.excepcion.RutaDuplicadaException;
 import pe.puriy.rutas.dominio.modelo.DatosRuta;
 import pe.puriy.rutas.dominio.modelo.Parada;
 import pe.puriy.rutas.dominio.modelo.Ruta;
 import pe.puriy.rutas.dominio.modelo.Terminal;
-import pe.puriy.rutas.dominio.modelo.TerminalId;
 import pe.puriy.rutas.dominio.modelo.TerminalesDeEjemplo;
 
 @JooqTest

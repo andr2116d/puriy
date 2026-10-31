@@ -14,6 +14,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.assertj.MockMvcTester;
+import pe.puriy.compartido.dominio.RutaId;
+import pe.puriy.compartido.dominio.TerminalId;
 import pe.puriy.rutas.aplicacion.puerto.entrada.ActualizarRutaUseCase;
 import pe.puriy.rutas.aplicacion.puerto.entrada.DetalleParada;
 import pe.puriy.rutas.aplicacion.puerto.entrada.DetalleRuta;
@@ -22,8 +24,6 @@ import pe.puriy.rutas.aplicacion.puerto.entrada.ListarRutasUseCase;
 import pe.puriy.rutas.aplicacion.puerto.entrada.ObtenerRutaUseCase;
 import pe.puriy.rutas.aplicacion.puerto.entrada.RegistrarRutaUseCase;
 import pe.puriy.rutas.dominio.excepcion.RutaNoEncontradaException;
-import pe.puriy.rutas.dominio.modelo.RutaId;
-import pe.puriy.rutas.dominio.modelo.TerminalId;
 
 @WebMvcTest(RutaController.class)
 class RutaControllerTest {

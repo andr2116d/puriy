@@ -11,6 +11,8 @@ import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
 import org.junit.jupiter.api.Test;
+import pe.puriy.compartido.dominio.TerminalId;
+import pe.puriy.compartido.dominio.TipoServicio;
 import pe.puriy.rutas.dominio.modelo.BusId;
 import pe.puriy.rutas.dominio.modelo.DatosRuta;
 import pe.puriy.rutas.dominio.modelo.Parada;
@@ -18,8 +20,6 @@ import pe.puriy.rutas.dominio.modelo.Recurrencia;
 import pe.puriy.rutas.dominio.modelo.Ruta;
 import pe.puriy.rutas.dominio.modelo.RutasDeEjemplo;
 import pe.puriy.rutas.dominio.modelo.Salida;
-import pe.puriy.rutas.dominio.modelo.TerminalId;
-import pe.puriy.rutas.dominio.modelo.TipoServicio;
 
 class ProgramadorDeSalidasTest {
 

@@ -15,14 +15,14 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import pe.puriy.compartido.dominio.RutaId;
+import pe.puriy.compartido.dominio.TerminalId;
 import pe.puriy.rutas.aplicacion.puerto.entrada.ActualizarRutaUseCase;
 import pe.puriy.rutas.aplicacion.puerto.entrada.ListarRutasQuery;
 import pe.puriy.rutas.aplicacion.puerto.entrada.ListarRutasUseCase;
 import pe.puriy.rutas.aplicacion.puerto.entrada.ObtenerRutaQuery;
 import pe.puriy.rutas.aplicacion.puerto.entrada.ObtenerRutaUseCase;
 import pe.puriy.rutas.aplicacion.puerto.entrada.RegistrarRutaUseCase;
-import pe.puriy.rutas.dominio.modelo.RutaId;
-import pe.puriy.rutas.dominio.modelo.TerminalId;
 
 @RestController
 @RequestMapping(RutaController.RUTA)

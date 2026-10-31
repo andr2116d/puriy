@@ -3,6 +3,7 @@ package pe.puriy.rutas.dominio.modelo;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import org.junit.jupiter.api.Test;
+import pe.puriy.compartido.dominio.TerminalId;
 
 class TerminalTest {
 

@@ -7,6 +7,7 @@ import static org.assertj.core.groups.Tuple.tuple;
 import java.time.Duration;
 import java.util.List;
 import org.junit.jupiter.api.Test;
+import pe.puriy.compartido.dominio.TerminalId;
 import pe.puriy.rutas.aplicacion.puerto.entrada.DetalleParada;
 import pe.puriy.rutas.aplicacion.puerto.entrada.RegistrarRutaCommand;
 import pe.puriy.rutas.dominio.excepcion.ParadaSinEmbarqueException;
@@ -14,7 +15,6 @@ import pe.puriy.rutas.dominio.excepcion.RutaDuplicadaException;
 import pe.puriy.rutas.dominio.excepcion.TerminalNoEncontradoException;
 import pe.puriy.rutas.dominio.modelo.DatosRuta;
 import pe.puriy.rutas.dominio.modelo.Parada;
-import pe.puriy.rutas.dominio.modelo.TerminalId;
 
 class RegistrarRutaServiceTest {
 

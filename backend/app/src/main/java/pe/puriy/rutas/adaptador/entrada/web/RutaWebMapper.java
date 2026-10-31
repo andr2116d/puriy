@@ -4,14 +4,14 @@ import java.util.List;
 import java.util.UUID;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
+import pe.puriy.compartido.dominio.RutaId;
+import pe.puriy.compartido.dominio.TerminalId;
 import pe.puriy.rutas.aplicacion.puerto.entrada.ActualizarRutaCommand;
 import pe.puriy.rutas.aplicacion.puerto.entrada.DetalleParada;
 import pe.puriy.rutas.aplicacion.puerto.entrada.DetalleRuta;
 import pe.puriy.rutas.aplicacion.puerto.entrada.RegistrarRutaCommand;
 import pe.puriy.rutas.dominio.modelo.DatosRuta;
 import pe.puriy.rutas.dominio.modelo.Parada;
-import pe.puriy.rutas.dominio.modelo.RutaId;
-import pe.puriy.rutas.dominio.modelo.TerminalId;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 final class RutaWebMapper {

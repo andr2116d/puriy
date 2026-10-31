@@ -4,9 +4,9 @@ import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 import org.jspecify.annotations.Nullable;
+import pe.puriy.compartido.dominio.RutaId;
 import pe.puriy.rutas.dominio.modelo.BusId;
 import pe.puriy.rutas.dominio.modelo.CambioDeBus;
-import pe.puriy.rutas.dominio.modelo.RutaId;
 import pe.puriy.rutas.dominio.modelo.Salida;
 import pe.puriy.rutas.dominio.modelo.SalidaId;
 

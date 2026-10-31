@@ -1,7 +1,7 @@
 package pe.puriy.rutas.aplicacion.puerto.entrada;
 
+import pe.puriy.compartido.dominio.TerminalId;
 import pe.puriy.rutas.dominio.modelo.Terminal;
-import pe.puriy.rutas.dominio.modelo.TerminalId;
 
 public record DetalleTerminal(
         TerminalId id, String nombre, String ciudad, String direccion, boolean vende, boolean embarca, long version) {

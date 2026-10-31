@@ -5,6 +5,8 @@ import lombok.Builder;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
+import pe.puriy.compartido.dominio.RutaId;
+import pe.puriy.compartido.dominio.TipoServicio;
 import pe.puriy.rutas.dominio.excepcion.CambioDeBusInvalidoException;
 import pe.puriy.rutas.dominio.excepcion.SalidaEnElPasadoException;
 

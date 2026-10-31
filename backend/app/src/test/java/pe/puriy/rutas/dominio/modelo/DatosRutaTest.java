@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.List;
 import org.junit.jupiter.api.Test;
 import pe.puriy.compartido.dominio.ReglaDeNegocioException;
+import pe.puriy.compartido.dominio.TerminalId;
 
 class DatosRutaTest {
 

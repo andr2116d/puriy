@@ -4,12 +4,12 @@ import java.time.Clock;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.ZoneOffset;
+import pe.puriy.compartido.dominio.TipoServicio;
 import pe.puriy.rutas.dominio.modelo.Bus;
 import pe.puriy.rutas.dominio.modelo.BusesDeEjemplo;
 import pe.puriy.rutas.dominio.modelo.Ruta;
 import pe.puriy.rutas.dominio.modelo.RutasDeEjemplo;
 import pe.puriy.rutas.dominio.modelo.Salida;
-import pe.puriy.rutas.dominio.modelo.TipoServicio;
 
 class EscenarioDeSalidas {
 
