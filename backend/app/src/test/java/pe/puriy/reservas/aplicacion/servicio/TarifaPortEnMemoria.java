@@ -19,6 +19,10 @@ class TarifaPortEnMemoria implements TarifaPort {
         precioPorPiso.put(piso, Monto.soles(centimos));
     }
 
+    void quitar(int piso) {
+        precioPorPiso.remove(piso);
+    }
+
     List<LocalDate> fechasConsultadas() {
         return List.copyOf(fechasConsultadas);
     }

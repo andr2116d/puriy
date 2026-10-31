@@ -57,7 +57,7 @@ public record Salida(
     }
 
     public void exigirVentaAbierta(Tramo tramo, ReglasDeCanal reglas, Instant ahora) {
-        var cierre = horaDePasoPorOrigen(tramo).minus(reglas.cierreAntesDelPaso());
+        var cierre = reglas.cierreDeVenta(horaDePasoPorOrigen(tramo));
         if (!ahora.isBefore(cierre)) {
             throw new VentaCerradaException(cierre);
         }

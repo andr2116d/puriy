@@ -24,6 +24,8 @@ public final class ReservasDeEjemplo {
     public static final TerminalId TRUJILLO = TerminalId.nuevo();
     public static final TerminalId TUMBES = TerminalId.nuevo();
 
+    public static final List<String> CIUDADES = List.of("Lima", "Chimbote", "Trujillo", "Tumbes");
+
     public static final Tramo LIMA_TUMBES = new Tramo(0, 3);
     public static final Tramo LIMA_CHIMBOTE = new Tramo(0, 1);
     public static final Tramo CHIMBOTE_TUMBES = new Tramo(1, 3);
@@ -46,6 +48,16 @@ public final class ReservasDeEjemplo {
                 Map.of(1, 1, 2, 1, 13, 2, 14, 2));
     }
 
+    public static SalidaCandidata candidata(Salida salida, Tramo tramo, Map<Integer, Integer> asientosPorPiso) {
+        return new SalidaCandidata(
+                salida.id(),
+                salida.rutaId(),
+                salida.tipoServicio(),
+                paradaDelTramo(salida, tramo.ordenOrigen()),
+                paradaDelTramo(salida, tramo.ordenDestino()),
+                asientosPorPiso);
+    }
+
     public static SolicitudDeReserva solicitud(Salida salida, Tramo tramo, Canal canal) {
         return new SolicitudDeReserva(UUID.randomUUID(), salida.id(), tramo, canal, invitado());
     }
@@ -56,5 +68,11 @@ public final class ReservasDeEjemplo {
 
     public static AsientoReservado asiento(int numero, long centimos) {
         return new AsientoReservado(numero, numero > 12 ? 2 : 1, Monto.soles(centimos));
+    }
+
+    private static ParadaDelTramo paradaDelTramo(Salida salida, int orden) {
+        var parada = salida.paradas().get(orden);
+        var ciudad = CIUDADES.get(orden);
+        return new ParadaDelTramo(orden, parada.terminalId(), "Terminal " + ciudad, ciudad, parada.horaDePaso());
     }
 }

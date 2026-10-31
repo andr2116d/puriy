@@ -1,20 +1,25 @@
 package pe.puriy.reservas.aplicacion.servicio;
 
 import java.time.Instant;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import pe.puriy.compartido.dominio.EdicionConcurrenteException;
+import pe.puriy.reservas.aplicacion.puerto.salida.ReservaLecturaPort;
 import pe.puriy.reservas.aplicacion.puerto.salida.ReservaRepositoryPort;
 import pe.puriy.reservas.dominio.excepcion.AsientoNoDisponibleException;
 import pe.puriy.reservas.dominio.excepcion.ReservaActivaExistenteException;
 import pe.puriy.reservas.dominio.modelo.AsientoReservado;
+import pe.puriy.reservas.dominio.modelo.AsientosOcupados;
 import pe.puriy.reservas.dominio.modelo.EstadoReserva;
 import pe.puriy.reservas.dominio.modelo.Reserva;
 import pe.puriy.reservas.dominio.modelo.ReservaId;
+import pe.puriy.reservas.dominio.modelo.TramoDeSalida;
 
-class ReservaRepositoryEnMemoria implements ReservaRepositoryPort {
+class ReservaRepositoryEnMemoria implements ReservaRepositoryPort, ReservaLecturaPort {
 
     private final Map<ReservaId, Reserva> reservas = new LinkedHashMap<>();
 
@@ -62,6 +67,28 @@ class ReservaRepositoryEnMemoria implements ReservaRepositoryPort {
         expiradas.forEach(
                 reserva -> reservas.put(reserva.id(), copia(reserva, EstadoReserva.VENCIDA, reserva.version() + 1)));
         return expiradas.size();
+    }
+
+    @Override
+    public Map<TramoDeSalida, AsientosOcupados> contarOcupados(List<TramoDeSalida> tramos, Instant ahora) {
+        var ocupados = new HashMap<TramoDeSalida, AsientosOcupados>();
+        for (var buscado : tramos) {
+            ocupados.put(buscado, ocupadosEn(buscado, ahora));
+        }
+        return ocupados;
+    }
+
+    private AsientosOcupados ocupadosEn(TramoDeSalida buscado, Instant ahora) {
+        var pisoPorAsiento = new HashMap<Integer, Integer>();
+        reservas.values().stream()
+                .filter(reserva -> estaActiva(reserva, ahora))
+                .filter(reserva -> reserva.salidaId().equals(buscado.salidaId()))
+                .filter(reserva -> reserva.tramo().seCruzaCon(buscado.tramo()))
+                .flatMap(reserva -> reserva.asientos().stream())
+                .forEach(asiento -> pisoPorAsiento.put(asiento.numero(), asiento.piso()));
+        var porPiso = new HashMap<Integer, Integer>();
+        pisoPorAsiento.values().forEach(piso -> porPiso.merge(piso, 1, Integer::sum));
+        return new AsientosOcupados(porPiso);
     }
 
     private static boolean ocupaUnAsiento(Reserva otra, Reserva nueva, Instant ahora) {
