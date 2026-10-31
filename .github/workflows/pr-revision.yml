@@ -122,12 +122,9 @@ jobs:
     env:
       AWS_REGION: ${{ vars.AWS_REGION }}
       AWS_ROL: ${{ vars.AWS_ROL_LECTURA }}
-      INFRACOST_API_KEY: ${{ secrets.INFRACOST_API_KEY }}
     steps:
       - name: Revisar
         run: echo "Se revisan el formato y la validez de Terraform"
-      - name: Costo
-        run: echo "Se estima el costo mensual con Infracost"
       - name: Plan de dev
         run: echo "Se comenta en el PR el plan de Terraform para dev"
       - name: Plan de prod
