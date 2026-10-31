@@ -17,15 +17,27 @@ class CatalogoDePrueba {
     final String lima;
     final String chimbote;
     final String trujillo;
+    final String ciudadLima;
+    final String ciudadChimbote;
+    final String ciudadTrujillo;
+    final LocalDate fechaDeSalida;
     final String salida;
 
     private final MockMvcTester mvc;
 
     CatalogoDePrueba(MockMvcTester mvc) {
+        this(mvc, true);
+    }
+
+    private CatalogoDePrueba(MockMvcTester mvc, boolean conTarifas) {
         this.mvc = mvc;
-        lima = terminal("Lima");
-        chimbote = terminal("Chimbote");
-        trujillo = terminal("Trujillo");
+        var sufijo = UUID.randomUUID().toString().substring(0, 8);
+        ciudadLima = "Lima " + sufijo;
+        ciudadChimbote = "Chimbote " + sufijo;
+        ciudadTrujillo = "Trujillo " + sufijo;
+        lima = terminal(ciudadLima);
+        chimbote = terminal(ciudadChimbote);
+        trujillo = terminal(ciudadTrujillo);
         var ruta = id(post("/api/v1/rutas", """
                 {"nombre": "Lima – Trujillo %s", "paradas": [
                   {"terminalId": "%s", "minutosDesdeAnterior": 0},
@@ -39,14 +51,20 @@ class CatalogoDePrueba {
                   {"numero": 3, "piso": 2, "fila": 1, "columna": 1, "tipo": "SEMICAMA"},
                   {"numero": 4, "piso": 2, "fila": 1, "columna": 2, "tipo": "SEMICAMA"}]}
                 """.formatted(placaAlAzar())));
-        var enUnMes = LocalDate.now(ZonaHoraria.PERU).plusMonths(1);
+        fechaDeSalida = LocalDate.now(ZonaHoraria.PERU).plusMonths(1);
         salida = id(post("/api/v1/salidas", """
                 {"rutaId": "%s", "busId": "%s", "tipoServicio": "CAMA", "parteEn": "%sT21:00:00-05:00"}
-                """.formatted(ruta, bus, enUnMes)));
-        for (var tramo : new String[][] {{lima, trujillo}, {lima, chimbote}, {chimbote, trujillo}}) {
-            tarifa(ruta, tramo[0], tramo[1], 1, 12000);
-            tarifa(ruta, tramo[0], tramo[1], 2, 9000);
+                """.formatted(ruta, bus, fechaDeSalida)));
+        if (conTarifas) {
+            for (var tramo : new String[][] {{lima, trujillo}, {lima, chimbote}, {chimbote, trujillo}}) {
+                tarifa(ruta, tramo[0], tramo[1], 1, 12000);
+                tarifa(ruta, tramo[0], tramo[1], 2, 9000);
+            }
         }
+    }
+
+    static CatalogoDePrueba sinTarifas(MockMvcTester mvc) {
+        return new CatalogoDePrueba(mvc, false);
     }
 
     MvcTestResult retener(UUID clave, String origen, String destino, int asiento) {

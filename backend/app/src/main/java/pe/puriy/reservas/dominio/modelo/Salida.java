@@ -34,8 +34,14 @@ public record Salida(
         return new Tramo(ordenOrigen, ordenDestino);
     }
 
-    public TerminalId terminalEn(int orden) {
-        return paradas.get(orden).terminalId();
+    public ConsultaDePrecio consultaDePrecio(Tramo tramo, int piso) {
+        return new ConsultaDePrecio(
+                rutaId,
+                paradas.get(tramo.ordenOrigen()).terminalId(),
+                paradas.get(tramo.ordenDestino()).terminalId(),
+                tipoServicio,
+                piso,
+                fechaDeViaje(tramo));
     }
 
     public LocalDate fechaDeViaje(Tramo tramo) {
@@ -51,7 +57,7 @@ public record Salida(
     }
 
     public void exigirVentaAbierta(Tramo tramo, ReglasDeCanal reglas, Instant ahora) {
-        var cierre = horaDePasoPorOrigen(tramo).minus(reglas.cierreAntesDelPaso());
+        var cierre = reglas.cierreDeVenta(horaDePasoPorOrigen(tramo));
         if (!ahora.isBefore(cierre)) {
             throw new VentaCerradaException(cierre);
         }
