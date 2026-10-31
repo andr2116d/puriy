@@ -3,7 +3,6 @@ package pe.puriy.rutas.adaptador.salida.persistencia;
 import static puriy.basedatos.rutas.Tables.CAMBIOS_DE_BUS;
 import static puriy.basedatos.rutas.Tables.SALIDAS;
 
-import java.sql.SQLException;
 import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
@@ -14,6 +13,7 @@ import org.jooq.impl.DSL;
 import org.jspecify.annotations.Nullable;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Repository;
+import pe.puriy.compartido.adaptador.salida.persistencia.EstadoSql;
 import pe.puriy.compartido.dominio.EdicionConcurrenteException;
 import pe.puriy.compartido.dominio.RutaId;
 import pe.puriy.rutas.aplicacion.puerto.salida.SalidaRepositoryPort;
@@ -26,8 +26,6 @@ import pe.puriy.rutas.dominio.modelo.SalidaId;
 @Repository
 @RequiredArgsConstructor
 class SalidaJooqAdapter implements SalidaRepositoryPort {
-
-    private static final String VIOLACION_DE_EXCLUSION = "23P01";
 
     private final DSLContext dsl;
 
@@ -105,15 +103,6 @@ class SalidaJooqAdapter implements SalidaRepositoryPort {
     }
 
     private static RuntimeException traducir(DataIntegrityViolationException excepcion, BusId busId) {
-        return esViolacionDeExclusion(excepcion) ? new BusOcupadoException(busId) : excepcion;
-    }
-
-    private static boolean esViolacionDeExclusion(Throwable excepcion) {
-        for (Throwable causa = excepcion; causa != null; causa = causa.getCause()) {
-            if (causa instanceof SQLException sql && VIOLACION_DE_EXCLUSION.equals(sql.getSQLState())) {
-                return true;
-            }
-        }
-        return false;
+        return EstadoSql.esViolacionDeExclusion(excepcion) ? new BusOcupadoException(busId) : excepcion;
     }
 }
