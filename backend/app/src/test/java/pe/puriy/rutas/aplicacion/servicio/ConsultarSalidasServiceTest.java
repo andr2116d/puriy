@@ -7,12 +7,12 @@ import static pe.puriy.rutas.aplicacion.servicio.EscenarioDeSalidas.MANIANA_A_LA
 import java.time.Duration;
 import java.time.LocalDate;
 import org.junit.jupiter.api.Test;
+import pe.puriy.compartido.dominio.SalidaId;
 import pe.puriy.rutas.aplicacion.puerto.entrada.DetalleSalida;
 import pe.puriy.rutas.aplicacion.puerto.entrada.ListarSalidasQuery;
 import pe.puriy.rutas.aplicacion.puerto.entrada.ObtenerSalidaQuery;
 import pe.puriy.rutas.dominio.excepcion.PeriodoDeConsultaInvalidoException;
 import pe.puriy.rutas.dominio.excepcion.SalidaNoEncontradaException;
-import pe.puriy.rutas.dominio.modelo.SalidaId;
 
 class ConsultarSalidasServiceTest {
 

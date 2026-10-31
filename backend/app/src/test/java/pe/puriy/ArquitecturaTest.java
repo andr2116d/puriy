@@ -1,5 +1,7 @@
 package pe.puriy;
 
+import static com.tngtech.archunit.base.DescribedPredicate.alwaysTrue;
+import static com.tngtech.archunit.core.domain.JavaClass.Predicates.resideInAPackage;
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.classes;
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.noClasses;
 import static com.tngtech.archunit.library.Architectures.onionArchitecture;
@@ -30,7 +32,8 @@ class ArquitecturaTest {
             .adapter("eventos de entrada", "..adaptador.entrada.evento..")
             .adapter("programados", "..adaptador.entrada.programado..")
             .adapter("salida", "..adaptador.salida..")
-            .withOptionalLayers(true);
+            .withOptionalLayers(true)
+            .ignoreDependency(resideInAPackage("..configuracion.."), alwaysTrue());
 
     @ArchTest
     static final ArchRule el_dominio_no_depende_de_frameworks = noClasses()

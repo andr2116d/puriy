@@ -9,6 +9,7 @@ import static pe.puriy.rutas.aplicacion.servicio.EscenarioDeSalidas.RELOJ;
 import java.time.Duration;
 import org.junit.jupiter.api.Test;
 import pe.puriy.compartido.dominio.EdicionConcurrenteException;
+import pe.puriy.compartido.dominio.SalidaId;
 import pe.puriy.rutas.aplicacion.puerto.entrada.CambiarBusDeSalidaCommand;
 import pe.puriy.rutas.dominio.excepcion.BusNoEncontradoException;
 import pe.puriy.rutas.dominio.excepcion.BusOcupadoException;
@@ -17,7 +18,6 @@ import pe.puriy.rutas.dominio.excepcion.SalidaNoEncontradaException;
 import pe.puriy.rutas.dominio.modelo.BusId;
 import pe.puriy.rutas.dominio.modelo.CambioDeBus;
 import pe.puriy.rutas.dominio.modelo.MotivoCambioDeBus;
-import pe.puriy.rutas.dominio.modelo.SalidaId;
 
 class CambiarBusDeSalidaServiceTest {
 

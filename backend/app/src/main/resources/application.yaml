@@ -25,3 +25,24 @@ management:
     health:
       probes:
         enabled: true
+
+puriy:
+  reservas:
+    liberacion:
+      habilitada: true
+      cada: PT30S
+      lote: 200
+    canales:
+      cliente:
+        retencion: 10m
+        maximo-asientos: 6
+        cierre-antes-del-paso: 30m
+      invitado:
+        retencion: 8m
+        maximo-asientos: 6
+        cierre-antes-del-paso: 30m
+      agente:
+        retencion: 30m
+        maximo-asientos: 20
+        cierre-antes-del-paso: 0m
+

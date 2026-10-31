@@ -10,12 +10,12 @@ import java.util.Optional;
 import org.jspecify.annotations.Nullable;
 import pe.puriy.compartido.dominio.EdicionConcurrenteException;
 import pe.puriy.compartido.dominio.RutaId;
+import pe.puriy.compartido.dominio.SalidaId;
 import pe.puriy.rutas.aplicacion.puerto.salida.SalidaRepositoryPort;
 import pe.puriy.rutas.dominio.excepcion.BusOcupadoException;
 import pe.puriy.rutas.dominio.modelo.BusId;
 import pe.puriy.rutas.dominio.modelo.CambioDeBus;
 import pe.puriy.rutas.dominio.modelo.Salida;
-import pe.puriy.rutas.dominio.modelo.SalidaId;
 
 class SalidaRepositoryEnMemoria implements SalidaRepositoryPort {
 

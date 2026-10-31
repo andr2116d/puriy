@@ -31,8 +31,6 @@ import pe.puriy.tarifas.aplicacion.puerto.entrada.ObtenerPrecioQuery;
 import pe.puriy.tarifas.aplicacion.puerto.entrada.ObtenerPrecioUseCase;
 import pe.puriy.tarifas.aplicacion.puerto.entrada.ObtenerTarifaQuery;
 import pe.puriy.tarifas.aplicacion.puerto.entrada.ObtenerTarifaUseCase;
-import pe.puriy.tarifas.dominio.modelo.CriterioDeTarifa;
-import pe.puriy.tarifas.dominio.modelo.ParDeParadas;
 import pe.puriy.tarifas.dominio.modelo.TarifaId;
 
 @RestController
@@ -70,8 +68,13 @@ class TarifaController {
             @RequestParam TipoServicio tipoServicio,
             @RequestParam int piso,
             @RequestParam LocalDate fechaDeViaje) {
-        var par = new ParDeParadas(new RutaId(rutaId), new TerminalId(origenId), new TerminalId(destinoId));
-        var consulta = new ObtenerPrecioQuery(new CriterioDeTarifa(par, tipoServicio, piso), fechaDeViaje);
+        var consulta = ObtenerPrecioQuery.para(
+                new RutaId(rutaId),
+                new TerminalId(origenId),
+                new TerminalId(destinoId),
+                tipoServicio,
+                piso,
+                fechaDeViaje);
         return TarifaWebMapper.aResponse(obtenerPrecio.ejecutar(consulta));
     }
 

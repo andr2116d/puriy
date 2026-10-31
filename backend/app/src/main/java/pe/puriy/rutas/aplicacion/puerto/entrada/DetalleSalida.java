@@ -2,10 +2,10 @@ package pe.puriy.rutas.aplicacion.puerto.entrada;
 
 import java.time.Instant;
 import pe.puriy.compartido.dominio.RutaId;
+import pe.puriy.compartido.dominio.SalidaId;
 import pe.puriy.compartido.dominio.TipoServicio;
 import pe.puriy.rutas.dominio.modelo.BusId;
 import pe.puriy.rutas.dominio.modelo.Salida;
-import pe.puriy.rutas.dominio.modelo.SalidaId;
 
 public record DetalleSalida(
         SalidaId id,
