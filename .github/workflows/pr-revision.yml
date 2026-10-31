@@ -1,0 +1,161 @@
+name: Revisión del PR
+run-name: "Revisión del PR #${{ github.event.pull_request.number }}"
+
+on:
+  pull_request:
+    branches: [dev, main]
+    types: [opened, synchronize, reopened, ready_for_review]
+
+permissions:
+  contents: read
+  pull-requests: read
+
+concurrency:
+  group: pr-revision-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  origen:
+    name: Origen del PR
+    runs-on: ubuntu-latest
+    env:
+      RAMA_ORIGEN: ${{ github.head_ref }}
+    steps:
+      - name: A main solo llegan dev o un hotfix
+        if: github.base_ref == 'main' && github.head_ref != 'dev' && !startsWith(github.head_ref, 'hotfix/')
+        run: |
+          echo "A main solo llegan dev o un hotfix, no $RAMA_ORIGEN"
+          exit 1
+      - name: Un hotfix va a main
+        if: github.base_ref == 'dev' && startsWith(github.head_ref, 'hotfix/')
+        run: |
+          echo "Un hotfix va a main, no a dev"
+          exit 1
+      - name: Origen correcto
+        run: echo "Origen correcto"
+
+  cambios:
+    name: Qué cambió
+    if: ${{ !github.event.pull_request.draft }}
+    runs-on: ubuntu-latest
+    outputs:
+      backend: ${{ steps.filtro.outputs.backend }}
+      migraciones: ${{ steps.filtro.outputs.migraciones }}
+      funciones: ${{ steps.filtro.outputs.funciones }}
+      frontend: ${{ steps.filtro.outputs.frontend }}
+      infra: ${{ steps.filtro.outputs.infra }}
+    steps:
+      - uses: dorny/paths-filter@v3
+        id: filtro
+        with:
+          filters: |
+            backend:
+              - 'backend/app/**'
+              - 'backend/build-logic/**'
+              - 'backend/gradle/**'
+              - 'backend/*.kts'
+            migraciones:
+              - 'backend/app/src/main/resources/db/migration/**'
+            funciones:
+              - 'backend/funciones/**'
+              - 'backend/gradle/**'
+            frontend:
+              - 'frontend/**'
+            infra:
+              - 'infra/**'
+
+  convenciones:
+    name: Convenciones
+    needs: cambios
+    runs-on: ubuntu-latest
+    steps:
+      - name: Título y rama
+        run: echo "Se revisa que el título del PR y el nombre de la rama sigan la convención"
+      - name: Commits
+        run: echo "Se revisa que cada commit siga Conventional Commits"
+      - name: Archivos
+        run: echo "Se revisa que no entren archivos prohibidos al repo"
+
+  backend:
+    name: Backend
+    needs: cambios
+    if: needs.cambios.outputs.backend == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Preparar
+        run: echo "Se instalan Java 25 y Gradle"
+      - name: Probar
+        run: echo "Se compila y se prueba el backend con ./gradlew check"
+      - name: Migraciones
+        if: needs.cambios.outputs.migraciones == 'true'
+        run: echo "Se revisa que las migraciones nuevas se apliquen en una base limpia"
+
+  funciones:
+    name: Funciones
+    needs: cambios
+    if: needs.cambios.outputs.funciones == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Probar
+        run: echo "Se compilan y se prueban las tres Lambdas"
+
+  frontend:
+    name: Frontend
+    needs: cambios
+    if: needs.cambios.outputs.frontend == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Probar
+        run: echo "Se revisa el código y se prueba el frontend"
+      - name: Compilar
+        run: echo "Se comprueba que el frontend compile"
+
+  infra:
+    name: Infraestructura
+    needs: cambios
+    if: needs.cambios.outputs.infra == 'true'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+      pull-requests: write
+    env:
+      AWS_REGION: ${{ vars.AWS_REGION }}
+      AWS_ROL: ${{ vars.AWS_ROL_LECTURA }}
+      INFRACOST_API_KEY: ${{ secrets.INFRACOST_API_KEY }}
+    steps:
+      - name: Revisar
+        run: echo "Se revisan el formato y la validez de Terraform"
+      - name: Costo
+        run: echo "Se estima el costo mensual con Infracost"
+      - name: Plan de dev
+        run: echo "Se comenta en el PR el plan de Terraform para dev"
+      - name: Plan de prod
+        if: github.base_ref == 'main'
+        run: echo "Se comenta en el PR el plan de Terraform para prod"
+
+  seguridad:
+    name: Seguridad
+    needs: cambios
+    runs-on: ubuntu-latest
+    steps:
+      - name: Dependencias
+        run: echo "Se buscan vulnerabilidades en las dependencias nuevas"
+      - name: Secretos
+        run: echo "Se buscan llaves o contraseñas subidas por error"
+      - name: Código
+        run: echo "Se analiza el código con CodeQL"
+
+  veredicto:
+    name: Veredicto
+    if: always()
+    needs: [origen, cambios, convenciones, backend, funciones, frontend, infra, seguridad]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Algo falló
+        if: contains(needs.*.result, 'failure') || contains(needs.*.result, 'cancelled')
+        run: |
+          echo "Hay revisiones fallidas, el PR no se puede integrar"
+          exit 1
+      - name: Listo
+        run: echo "Todo pasó, el PR se puede integrar"

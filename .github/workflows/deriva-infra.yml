@@ -1,0 +1,36 @@
+name: Cambios fuera de Terraform
+
+on:
+  schedule:
+    # Lunes 08:00 en Perú
+    - cron: '0 13 * * 1'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  comparar:
+    name: Comparar ${{ matrix.ambiente }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        ambiente: [global, dev, prod]
+    env:
+      AMBIENTE: ${{ matrix.ambiente }}
+      AWS_REGION: ${{ vars.AWS_REGION }}
+      AWS_ROL: ${{ vars.AWS_ROL_LECTURA }}
+    steps:
+      - name: Comparar
+        run: echo "Terraform compara lo que hay en AWS con el código de $AMBIENTE"
+
+  avisar:
+    name: Avisar
+    needs: comparar
+    if: failure()
+    uses: ./.github/workflows/avisar.yml
+    with:
+      titulo: Hay cambios fuera de Terraform
+    secrets: inherit

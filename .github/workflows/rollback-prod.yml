@@ -1,0 +1,71 @@
+name: Rollback de prod
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: Versión a restaurar o "anterior"
+        required: true
+        default: anterior
+      motivo:
+        description: Motivo
+        required: true
+  workflow_call:
+    inputs:
+      version:
+        required: true
+        type: string
+      motivo:
+        required: true
+        type: string
+
+permissions:
+  contents: read
+  id-token: write
+  issues: write
+
+jobs:
+  resolver:
+    name: Elegir la versión
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+    env:
+      VERSION_PEDIDA: ${{ inputs.version }}
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - name: Versión
+        id: version
+        run: |
+          echo "Se busca la versión a restaurar entre las publicadas"
+          echo "version=$VERSION_PEDIDA" >> "$GITHUB_OUTPUT"
+
+  desplegar:
+    name: Desplegar
+    needs: resolver
+    uses: ./.github/workflows/desplegar-ambiente.yml
+    with:
+      ambiente: prod
+      version: ${{ needs.resolver.outputs.version }}
+    secrets: inherit
+
+  registrar:
+    name: Registrar
+    needs: [resolver, desplegar]
+    if: always()
+    runs-on: ubuntu-latest
+    env:
+      MOTIVO: ${{ inputs.motivo }}
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - name: Issue
+        run: echo "Se abre un issue con el motivo del rollback"
+
+  avisar:
+    name: Avisar
+    needs: [resolver, desplegar]
+    if: always()
+    uses: ./.github/workflows/avisar.yml
+    with:
+      titulo: "Rollback de prod: ${{ needs.desplegar.result }}"
+    secrets: inherit

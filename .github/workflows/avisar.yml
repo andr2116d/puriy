@@ -1,0 +1,22 @@
+name: Avisar
+
+on:
+  workflow_call:
+    inputs:
+      titulo:
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  enviar:
+    name: Enviar aviso
+    runs-on: ubuntu-latest
+    env:
+      TITULO: ${{ inputs.titulo }}
+      WEBHOOK: ${{ secrets.ALERTAS_WEBHOOK }}
+    steps:
+      - name: Avisar
+        run: echo "Se envía el aviso al canal del equipo"

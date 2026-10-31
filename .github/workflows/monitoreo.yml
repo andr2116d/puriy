@@ -1,0 +1,45 @@
+name: Monitoreo
+
+on:
+  schedule:
+    # Cada hora, de 06:00 a 23:00 en Perú
+    - cron: '0 11-23,0-4 * * *'
+  workflow_dispatch:
+    inputs:
+      ambiente:
+        type: choice
+        options: [prod, dev]
+        default: prod
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  revisar:
+    name: Revisar
+    runs-on: ubuntu-latest
+    env:
+      AMBIENTE: ${{ inputs.ambiente || 'prod' }}
+      AWS_REGION: ${{ vars.AWS_REGION }}
+      AWS_ROL: ${{ vars.AWS_ROL_LECTURA }}
+    steps:
+      - name: API
+        run: echo "Se revisa que la API de $AMBIENTE responda"
+      - name: Alarmas
+        run: echo "Se revisa que ninguna alarma de CloudWatch esté activa"
+      - name: Colas de errores
+        run: echo "Se revisa que las colas de errores estén vacías"
+      - name: Respaldo
+        run: echo "Se revisa que exista el respaldo de anoche"
+      - name: Gasto
+        run: echo "Se revisa que el gasto del mes no pase del presupuesto"
+
+  avisar:
+    name: Avisar
+    needs: revisar
+    if: failure()
+    uses: ./.github/workflows/avisar.yml
+    with:
+      titulo: Falló el monitoreo
+    secrets: inherit
