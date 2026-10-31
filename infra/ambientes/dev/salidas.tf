@@ -17,3 +17,13 @@ output "funciones" {
   description = "Alias de cada Lambda"
   value       = module.funciones.funciones
 }
+
+output "repositorio_url" {
+  description = "Repositorio de la imagen"
+  value       = module.computo.repositorio_url
+}
+
+output "grupo_autoescalado" {
+  description = "Grupo de EC2"
+  value       = module.computo.grupo_autoescalado
+}
