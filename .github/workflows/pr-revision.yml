@@ -168,9 +168,6 @@ jobs:
     if: needs.cambios.outputs.infra == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 15
-    permissions:
-      contents: read
-      id-token: write
     steps:
       - uses: actions/checkout@v7
       - uses: hashicorp/setup-terraform@v4
@@ -185,29 +182,6 @@ jobs:
             terraform -chdir="$carpeta" init -backend=false -input=false
             terraform -chdir="$carpeta" validate
           done
-      - name: Entrar a AWS
-        # GitHub no entrega el token de AWS a los PR que vienen de un fork
-        if: hashFiles('infra/global/*.tf') != '' && vars.AWS_ROL_LECTURA != '' && github.event.pull_request.head.repo.full_name == github.repository
-        uses: ./.github/actions/preparar-terraform
-        with:
-          rol: ${{ vars.AWS_ROL_LECTURA }}
-          carpeta: infra/global
-          region: ${{ vars.AWS_REGION }}
-          bucket: ${{ vars.TF_STATE_BUCKET }}
-      - name: Plan de global
-        if: hashFiles('infra/global/*.tf') != '' && vars.AWS_ROL_LECTURA != '' && github.event.pull_request.head.repo.full_name == github.repository
-        working-directory: infra/global
-        run: |
-          terraform plan -input=false -lock=false -no-color | tee plan.txt
-          {
-            echo '### Plan de global'
-            echo '```'
-            cat plan.txt
-            echo '```'
-          } >> "$GITHUB_STEP_SUMMARY"
-      - name: Sin plan
-        if: hashFiles('infra/global/*.tf') == '' || vars.AWS_ROL_LECTURA == ''
-        run: echo "::notice::Todavía no hay Terraform o falta AWS_ROL_LECTURA, no se calcula el plan"
 
   seguridad:
     name: Seguridad

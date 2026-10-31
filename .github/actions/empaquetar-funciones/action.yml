@@ -1,0 +1,19 @@
+name: Empaquetar funciones
+description: Arma el ZIP de cada Lambda
+
+runs:
+  using: composite
+  steps:
+    - uses: actions/setup-java@v6
+      with:
+        distribution: temurin
+        java-version: '25'
+    - uses: gradle/actions/setup-gradle@v6
+    - name: Empaquetar
+      shell: bash
+      working-directory: backend
+      run: >-
+        ./gradlew
+        :funciones:generar-boleto:empaquetar
+        :funciones:enviar-correo:empaquetar
+        :funciones:publicar-asientos:empaquetar
