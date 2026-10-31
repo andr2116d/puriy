@@ -12,3 +12,8 @@ output "url_web" {
   description = "Dirección pública del frontend"
   value       = module.entrada_global.url_web
 }
+
+output "funciones" {
+  description = "Alias de cada Lambda"
+  value       = module.funciones.funciones
+}
