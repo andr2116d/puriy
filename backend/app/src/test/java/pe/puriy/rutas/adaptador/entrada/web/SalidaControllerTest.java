@@ -16,6 +16,7 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.assertj.MockMvcTester;
 import org.springframework.test.web.servlet.assertj.MvcTestResult;
 import pe.puriy.compartido.dominio.RutaId;
+import pe.puriy.compartido.dominio.SalidaId;
 import pe.puriy.compartido.dominio.TipoServicio;
 import pe.puriy.rutas.aplicacion.puerto.entrada.CambiarBusDeSalidaUseCase;
 import pe.puriy.rutas.aplicacion.puerto.entrada.DetalleSalida;
@@ -26,7 +27,6 @@ import pe.puriy.rutas.aplicacion.puerto.entrada.ProgramarSalidaUseCase;
 import pe.puriy.rutas.aplicacion.puerto.entrada.ProgramarSalidasRecurrentesUseCase;
 import pe.puriy.rutas.dominio.excepcion.SalidaNoEncontradaException;
 import pe.puriy.rutas.dominio.modelo.BusId;
-import pe.puriy.rutas.dominio.modelo.SalidaId;
 
 @WebMvcTest(SalidaController.class)
 class SalidaControllerTest {

@@ -1,8 +1,8 @@
 package pe.puriy.rutas.dominio.excepcion;
 
 import pe.puriy.compartido.dominio.ReglaDeNegocioException;
+import pe.puriy.compartido.dominio.SalidaId;
 import pe.puriy.rutas.dominio.modelo.BusId;
-import pe.puriy.rutas.dominio.modelo.SalidaId;
 
 public final class CambioDeBusInvalidoException extends ReglaDeNegocioException {
 

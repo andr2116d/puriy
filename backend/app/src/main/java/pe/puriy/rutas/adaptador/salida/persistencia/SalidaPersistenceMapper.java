@@ -7,12 +7,12 @@ import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import pe.puriy.compartido.dominio.IdentificadorUnico;
 import pe.puriy.compartido.dominio.RutaId;
+import pe.puriy.compartido.dominio.SalidaId;
 import pe.puriy.compartido.dominio.TipoServicio;
 import pe.puriy.rutas.dominio.modelo.BusId;
 import pe.puriy.rutas.dominio.modelo.CambioDeBus;
 import pe.puriy.rutas.dominio.modelo.Horario;
 import pe.puriy.rutas.dominio.modelo.Salida;
-import pe.puriy.rutas.dominio.modelo.SalidaId;
 import puriy.basedatos.rutas.tables.records.CambiosDeBusRecord;
 import puriy.basedatos.rutas.tables.records.SalidasRecord;
 

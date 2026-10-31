@@ -1,7 +1,6 @@
-package pe.puriy.rutas.dominio.modelo;
+package pe.puriy.compartido.dominio;
 
 import java.util.UUID;
-import pe.puriy.compartido.dominio.IdentificadorUnico;
 
 public record SalidaId(UUID valor) {
 

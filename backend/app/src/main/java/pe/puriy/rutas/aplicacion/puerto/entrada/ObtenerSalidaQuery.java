@@ -1,5 +1,5 @@
 package pe.puriy.rutas.aplicacion.puerto.entrada;
 
-import pe.puriy.rutas.dominio.modelo.SalidaId;
+import pe.puriy.compartido.dominio.SalidaId;
 
 public record ObtenerSalidaQuery(SalidaId id) {}
