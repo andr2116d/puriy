@@ -56,7 +56,8 @@ class RetenerAsientosService implements RetenerAsientosUseCase {
             var piso = salida.pisoDe(numero);
             var precio = precioPorPiso.get(piso);
             if (precio == null) {
-                precio = tarifas.buscarPrecio(salida, tramo, piso).orElseThrow(() -> new TramoSinTarifaException(piso));
+                precio = tarifas.buscarPrecio(salida.consultaDePrecio(tramo, piso))
+                        .orElseThrow(() -> new TramoSinTarifaException(piso));
                 precioPorPiso.put(piso, precio);
             }
             asientos.add(new AsientoReservado(numero, piso, precio));

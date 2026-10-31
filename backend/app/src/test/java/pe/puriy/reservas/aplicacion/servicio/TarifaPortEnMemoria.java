@@ -8,8 +8,7 @@ import java.util.Map;
 import java.util.Optional;
 import pe.puriy.compartido.dominio.Monto;
 import pe.puriy.reservas.aplicacion.puerto.salida.TarifaPort;
-import pe.puriy.reservas.dominio.modelo.Salida;
-import pe.puriy.reservas.dominio.modelo.Tramo;
+import pe.puriy.reservas.dominio.modelo.ConsultaDePrecio;
 
 class TarifaPortEnMemoria implements TarifaPort {
 
@@ -25,8 +24,8 @@ class TarifaPortEnMemoria implements TarifaPort {
     }
 
     @Override
-    public Optional<Monto> buscarPrecio(Salida salida, Tramo tramo, int piso) {
-        fechasConsultadas.add(salida.fechaDeViaje(tramo));
-        return Optional.ofNullable(precioPorPiso.get(piso));
+    public Optional<Monto> buscarPrecio(ConsultaDePrecio consulta) {
+        fechasConsultadas.add(consulta.fechaDeViaje());
+        return Optional.ofNullable(precioPorPiso.get(consulta.piso()));
     }
 }

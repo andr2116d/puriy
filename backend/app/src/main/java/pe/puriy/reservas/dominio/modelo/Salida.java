@@ -34,8 +34,14 @@ public record Salida(
         return new Tramo(ordenOrigen, ordenDestino);
     }
 
-    public TerminalId terminalEn(int orden) {
-        return paradas.get(orden).terminalId();
+    public ConsultaDePrecio consultaDePrecio(Tramo tramo, int piso) {
+        return new ConsultaDePrecio(
+                rutaId,
+                paradas.get(tramo.ordenOrigen()).terminalId(),
+                paradas.get(tramo.ordenDestino()).terminalId(),
+                tipoServicio,
+                piso,
+                fechaDeViaje(tramo));
     }
 
     public LocalDate fechaDeViaje(Tramo tramo) {
