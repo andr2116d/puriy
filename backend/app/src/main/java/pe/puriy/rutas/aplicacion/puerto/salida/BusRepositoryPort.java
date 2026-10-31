@@ -13,5 +13,7 @@ public interface BusRepositoryPort {
 
     Optional<Bus> buscarPorId(BusId id);
 
+    Optional<Bus> buscarYBloquear(BusId id);
+
     List<Bus> listarTodos();
 }

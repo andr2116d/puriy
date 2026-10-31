@@ -42,6 +42,11 @@ class BusRepositoryEnMemoria implements BusRepositoryPort {
     }
 
     @Override
+    public Optional<Bus> buscarYBloquear(BusId id) {
+        return buscarPorId(id);
+    }
+
+    @Override
     public List<Bus> listarTodos() {
         return buses.values().stream().sorted(POR_PLACA).toList();
     }

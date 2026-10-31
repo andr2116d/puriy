@@ -78,6 +78,15 @@ class RutaJooqAdapter implements RutaRepositoryPort {
     }
 
     @Override
+    public Optional<Ruta> buscarYBloquear(RutaId id) {
+        return rutasConParadas()
+                .where(RUTAS.ID.eq(id.valor()))
+                .forUpdate()
+                .of(RUTAS)
+                .fetchOptional(Records.mapping(RutaPersistenceMapper::aDominio));
+    }
+
+    @Override
     public List<Ruta> listarTodas() {
         return rutasConParadas().orderBy(RUTAS.NOMBRE).fetch(Records.mapping(RutaPersistenceMapper::aDominio));
     }

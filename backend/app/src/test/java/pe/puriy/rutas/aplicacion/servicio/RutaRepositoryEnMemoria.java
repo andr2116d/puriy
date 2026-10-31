@@ -43,6 +43,11 @@ class RutaRepositoryEnMemoria implements RutaRepositoryPort {
     }
 
     @Override
+    public Optional<Ruta> buscarYBloquear(RutaId id) {
+        return buscarPorId(id);
+    }
+
+    @Override
     public List<Ruta> listarTodas() {
         return rutas.values().stream().sorted(POR_NOMBRE).toList();
     }

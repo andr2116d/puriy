@@ -44,6 +44,14 @@ class BusJooqAdapterIT {
     }
 
     @Test
+    void recupera_el_bus_bloqueandolo() {
+        var bus = Bus.registrar(BusesDeEjemplo.dosPisos());
+        buses.agregar(bus);
+
+        assertThat(buses.buscarYBloquear(bus.id())).contains(bus);
+    }
+
+    @Test
     void rechaza_una_placa_repetida() {
         buses.agregar(Bus.registrar(BusesDeEjemplo.dosPisos()));
         var mismaPlaca =

@@ -14,6 +14,8 @@ public interface RutaRepositoryPort {
 
     Optional<Ruta> buscarPorId(RutaId id);
 
+    Optional<Ruta> buscarYBloquear(RutaId id);
+
     List<Ruta> listarTodas();
 
     List<Ruta> listarPorTerminal(TerminalId terminalId);

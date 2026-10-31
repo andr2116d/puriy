@@ -62,6 +62,16 @@ class RutaJooqAdapterIT {
     }
 
     @Test
+    void recupera_la_ruta_con_sus_paradas_bloqueandola() {
+        var ruta = Ruta.trazar(limaTrujillo());
+        rutas.agregar(ruta);
+
+        var recuperada = rutas.buscarYBloquear(ruta.id()).orElseThrow();
+
+        assertThat(recuperada.paradas()).hasSize(3);
+    }
+
+    @Test
     void rechaza_un_nombre_de_ruta_repetido_sin_importar_mayusculas() {
         rutas.agregar(Ruta.trazar(limaTrujillo()));
         var repetida = new DatosRuta(

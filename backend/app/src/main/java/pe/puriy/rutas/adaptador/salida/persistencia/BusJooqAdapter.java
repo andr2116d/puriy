@@ -72,6 +72,15 @@ class BusJooqAdapter implements BusRepositoryPort {
     }
 
     @Override
+    public Optional<Bus> buscarYBloquear(BusId id) {
+        return busesConAsientos()
+                .where(BUSES.ID.eq(id.valor()))
+                .forUpdate()
+                .of(BUSES)
+                .fetchOptional(Records.mapping(BusPersistenceMapper::aDominio));
+    }
+
+    @Override
     public List<Bus> listarTodos() {
         return busesConAsientos().orderBy(BUSES.PLACA).fetch(Records.mapping(BusPersistenceMapper::aDominio));
     }
