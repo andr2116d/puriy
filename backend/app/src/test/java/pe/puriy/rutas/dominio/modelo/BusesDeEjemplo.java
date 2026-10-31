@@ -18,7 +18,7 @@ public final class BusesDeEjemplo {
 
     public static DatosBus unPiso() {
         return new DatosBus(
-                new Placa("B2C-456"), new MapaAsientos(asientos(1, 1, 10, DOS_MAS_DOS, TipoAsiento.ESTANDAR)));
+                new Placa("B2C-456"), new MapaAsientos(asientos(2, 1, 10, DOS_MAS_DOS, TipoAsiento.ESTANDAR)));
     }
 
     public static MapaAsientos mapaDeDosPisos() {

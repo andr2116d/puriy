@@ -38,7 +38,9 @@ public final class MapaAsientosInvalidoException extends ReglaDeNegocioException
                 "Los asientos %d y %d ocupan el mismo lugar del mapa".formatted(numero, otroNumero));
     }
 
-    public static MapaAsientosInvalidoException sinPrimerPiso() {
-        return new MapaAsientosInvalidoException("piso-uno-sin-asientos", "El primer piso del bus debe tener asientos");
+    public static MapaAsientosInvalidoException sinPisoSuperior() {
+        return new MapaAsientosInvalidoException(
+                "piso-dos-sin-asientos",
+                "El segundo piso debe tener asientos: en un bus de un solo piso, todos van en el piso 2");
     }
 }

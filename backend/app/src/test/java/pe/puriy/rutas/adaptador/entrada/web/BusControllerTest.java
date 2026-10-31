@@ -69,7 +69,7 @@ class BusControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("""
                         {"placa": "ABC123", "asientos": [
-                          {"numero": 1, "piso": 1, "fila": 1, "columna": 1, "tipo": "CAMA"}]}
+                          {"numero": 1, "piso": 2, "fila": 1, "columna": 1, "tipo": "CAMA"}]}
                         """))
                 .hasStatus(HttpStatus.CONFLICT)
                 .bodyJson()
@@ -133,8 +133,8 @@ class BusControllerTest {
     private static String json(String tipo) {
         return """
                 {"placa": "ABC-123", "asientos": [
-                  {"numero": 1, "piso": 1, "fila": 1, "columna": 1, "tipo": "%s"},
-                  {"numero": 2, "piso": 1, "fila": 1, "columna": 2, "tipo": "%s"}]}
+                  {"numero": 1, "piso": 2, "fila": 1, "columna": 1, "tipo": "%s"},
+                  {"numero": 2, "piso": 2, "fila": 1, "columna": 2, "tipo": "%s"}]}
                 """.formatted(tipo, tipo);
     }
 
@@ -145,6 +145,6 @@ class BusControllerTest {
                 0,
                 2,
                 1,
-                List.of(new Asiento(1, 1, 1, 1, TipoAsiento.CAMA), new Asiento(2, 1, 1, 2, TipoAsiento.CAMA)));
+                List.of(new Asiento(1, 2, 1, 1, TipoAsiento.CAMA), new Asiento(2, 2, 1, 2, TipoAsiento.CAMA)));
     }
 }

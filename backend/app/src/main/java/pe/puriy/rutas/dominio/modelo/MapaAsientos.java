@@ -7,7 +7,8 @@ import pe.puriy.rutas.dominio.excepcion.MapaAsientosInvalidoException;
 public record MapaAsientos(List<Asiento> asientos) {
 
     public static final int MAXIMO_ASIENTOS = 80;
-    public static final int PRIMER_PISO = 1;
+    // Todo bus tiene asientos arriba, sobre la bodega; el piso 1 solo existe en los buses de dos pisos
+    public static final int PISO_SUPERIOR = 2;
 
     public MapaAsientos {
         asientos = asientos.stream()
@@ -16,7 +17,7 @@ public record MapaAsientos(List<Asiento> asientos) {
         exigirCantidad(asientos);
         exigirNumeracionCorrelativa(asientos);
         exigirLugaresDistintos(asientos);
-        exigirPrimerPiso(asientos);
+        exigirPisoSuperior(asientos);
     }
 
     public int capacidad() {
@@ -24,7 +25,7 @@ public record MapaAsientos(List<Asiento> asientos) {
     }
 
     public int cantidadPisos() {
-        return asientos.stream().mapToInt(Asiento::piso).max().orElseThrow();
+        return (int) asientos.stream().map(Asiento::piso).distinct().count();
     }
 
     private static void exigirCantidad(List<Asiento> asientos) {
@@ -56,9 +57,9 @@ public record MapaAsientos(List<Asiento> asientos) {
         }
     }
 
-    private static void exigirPrimerPiso(List<Asiento> asientos) {
-        if (asientos.stream().noneMatch(asiento -> asiento.piso() == PRIMER_PISO)) {
-            throw MapaAsientosInvalidoException.sinPrimerPiso();
+    private static void exigirPisoSuperior(List<Asiento> asientos) {
+        if (asientos.stream().noneMatch(asiento -> asiento.piso() == PISO_SUPERIOR)) {
+            throw MapaAsientosInvalidoException.sinPisoSuperior();
         }
     }
 }

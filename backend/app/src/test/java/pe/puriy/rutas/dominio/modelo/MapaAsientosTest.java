@@ -20,7 +20,7 @@ class MapaAsientosTest {
     }
 
     @Test
-    void un_bus_de_un_solo_piso_tiene_todos_sus_asientos_abajo() {
+    void un_bus_de_un_solo_piso_tiene_todos_sus_asientos_en_el_segundo() {
         var mapa = BusesDeEjemplo.unPiso().mapa();
 
         assertThat(mapa.capacidad()).isEqualTo(40);
@@ -29,9 +29,9 @@ class MapaAsientosTest {
 
     @Test
     void la_ultima_fila_puede_ocupar_todo_el_ancho_sin_pasillo() {
-        var asientos = new ArrayList<>(asientos(1, 1, 10, DOS_MAS_DOS, TipoAsiento.ESTANDAR));
+        var asientos = new ArrayList<>(asientos(2, 1, 10, DOS_MAS_DOS, TipoAsiento.ESTANDAR));
         for (var columna = 1; columna <= Asiento.MAXIMO_COLUMNAS; columna++) {
-            asientos.add(new Asiento(40 + columna, 1, 11, columna, TipoAsiento.ESTANDAR));
+            asientos.add(new Asiento(40 + columna, 2, 11, columna, TipoAsiento.ESTANDAR));
         }
 
         var mapa = new MapaAsientos(asientos);
@@ -43,7 +43,7 @@ class MapaAsientosTest {
     @Test
     void los_asientos_quedan_ordenados_por_numero() {
         var mapa = new MapaAsientos(
-                List.of(new Asiento(2, 1, 1, 2, TipoAsiento.CAMA), new Asiento(1, 1, 1, 1, TipoAsiento.CAMA)));
+                List.of(new Asiento(2, 2, 1, 2, TipoAsiento.CAMA), new Asiento(1, 2, 1, 1, TipoAsiento.CAMA)));
 
         assertThat(mapa.asientos()).extracting(Asiento::numero).containsExactly(1, 2);
     }
@@ -100,20 +100,20 @@ class MapaAsientosTest {
     }
 
     @Test
-    void un_bus_no_puede_tener_solo_segundo_piso() {
-        var soloArriba = asientos(2, 1, 2, DOS_MAS_DOS, TipoAsiento.SEMICAMA);
+    void un_bus_no_puede_tener_solo_primer_piso() {
+        var soloAbajo = asientos(1, 1, 2, DOS_MAS_DOS, TipoAsiento.CAMA);
 
-        assertThatThrownBy(() -> new MapaAsientos(soloArriba))
+        assertThatThrownBy(() -> new MapaAsientos(soloAbajo))
                 .extracting("codigo")
-                .isEqualTo("piso-uno-sin-asientos");
+                .isEqualTo("piso-dos-sin-asientos");
     }
 
     @Test
     void los_asientos_no_se_pueden_modificar_desde_afuera() {
-        var asientos = new ArrayList<>(List.of(new Asiento(1, 1, 1, 1, TipoAsiento.CAMA)));
+        var asientos = new ArrayList<>(List.of(new Asiento(1, 2, 1, 1, TipoAsiento.CAMA)));
         var mapa = new MapaAsientos(asientos);
 
-        asientos.add(new Asiento(2, 1, 1, 2, TipoAsiento.CAMA));
+        asientos.add(new Asiento(2, 2, 1, 2, TipoAsiento.CAMA));
 
         assertThat(mapa.capacidad()).isEqualTo(1);
     }
