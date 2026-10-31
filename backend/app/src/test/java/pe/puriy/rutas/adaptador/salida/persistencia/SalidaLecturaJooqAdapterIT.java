@@ -6,6 +6,8 @@ import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Locale;
+import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -51,6 +53,9 @@ class SalidaLecturaJooqAdapterIT {
     private final BusJooqAdapter buses;
 
     private Salida limaTrujillo;
+    private String ciudadLima;
+    private String ciudadChimbote;
+    private String ciudadTrujillo;
 
     SalidaLecturaJooqAdapterIT(
             @Autowired SalidaLecturaJooqAdapter lectura,
@@ -67,9 +72,13 @@ class SalidaLecturaJooqAdapterIT {
 
     @BeforeEach
     void programarLimaTrujillo() {
-        var lima = terminal("Lima");
-        var chimbote = terminal("Chimbote");
-        var trujillo = terminal("Trujillo");
+        var sufijo = UUID.randomUUID().toString().substring(0, 8);
+        ciudadLima = "Lima " + sufijo;
+        ciudadTrujillo = "Trujillo " + sufijo;
+        var lima = terminal(ciudadLima);
+        ciudadChimbote = "Chimbote " + sufijo;
+        var chimbote = terminal(ciudadChimbote);
+        var trujillo = terminal(ciudadTrujillo);
         var ruta = Ruta.trazar(new DatosRuta(
                 "Lima – Trujillo",
                 List.of(
@@ -85,7 +94,7 @@ class SalidaLecturaJooqAdapterIT {
 
     @Test
     void encuentra_la_salida_entre_el_origen_y_el_destino_de_la_ruta() {
-        var encontradas = buscar("Lima", "Trujillo", LUNES);
+        var encontradas = buscar(ciudadLima, ciudadTrujillo, LUNES);
 
         assertThat(encontradas).singleElement().satisfies(salida -> {
             assertThat(salida.id()).isEqualTo(limaTrujillo.id());
@@ -98,9 +107,9 @@ class SalidaLecturaJooqAdapterIT {
 
     @Test
     void encuentra_un_tramo_intermedio_el_dia_en_que_el_bus_pasa_por_ahi() {
-        assertThat(buscar("Chimbote", "Trujillo", LUNES)).isEmpty();
+        assertThat(buscar(ciudadChimbote, ciudadTrujillo, LUNES)).isEmpty();
 
-        var desdeChimbote = buscar("Chimbote", "Trujillo", MARTES);
+        var desdeChimbote = buscar(ciudadChimbote, ciudadTrujillo, MARTES);
 
         assertThat(desdeChimbote).singleElement().satisfies(salida -> {
             assertThat(salida.origen().orden()).isEqualTo(1);
@@ -110,12 +119,37 @@ class SalidaLecturaJooqAdapterIT {
 
     @Test
     void no_encuentra_el_tramo_en_sentido_contrario() {
-        assertThat(buscar("Trujillo", "Lima", LUNES)).isEmpty();
+        assertThat(buscar(ciudadTrujillo, ciudadLima, LUNES)).isEmpty();
     }
 
     @Test
     void las_ciudades_no_distinguen_mayusculas() {
-        assertThat(buscar("  LIMA ", "trujillo", LUNES)).hasSize(1);
+        assertThat(buscar(
+                        "  " + ciudadLima.toUpperCase(Locale.ROOT) + " ",
+                        ciudadTrujillo.toLowerCase(Locale.ROOT),
+                        LUNES))
+                .hasSize(1);
+    }
+
+    @Test
+    void desde_una_ciudad_ofrece_cada_parada_posterior_como_destino() {
+        var consulta = new BuscarSalidasEntreCiudadesQuery(ciudadLima, ciudadLima, LUNES);
+
+        var salidas = lectura.buscarQueSalenDe(ciudadLima, consulta.inicio(), consulta.fin());
+
+        assertThat(salidas).extracting(salida -> salida.destino().orden()).containsExactlyInAnyOrder(1, 2);
+    }
+
+    @Test
+    void hacia_una_ciudad_ofrece_cada_parada_anterior_cuya_hora_de_paso_cae_en_el_rango() {
+        var hastaAntesDeChimbote = LUNES_21_EN_LIMA.plus(Duration.ofMinutes(60));
+
+        var salidas = lectura.buscarQueLleganA(ciudadTrujillo, LUNES_21_EN_LIMA, hastaAntesDeChimbote);
+
+        assertThat(salidas).singleElement().satisfies(salida -> {
+            assertThat(salida.origen().orden()).isZero();
+            assertThat(salida.destino().orden()).isEqualTo(2);
+        });
     }
 
     private List<SalidaEntreCiudades> buscar(String origen, String destino, LocalDate fecha) {
