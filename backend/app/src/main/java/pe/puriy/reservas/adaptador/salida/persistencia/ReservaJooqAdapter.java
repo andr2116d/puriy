@@ -29,6 +29,7 @@ import pe.puriy.reservas.dominio.excepcion.ReservaActivaExistenteException;
 import pe.puriy.reservas.dominio.modelo.AsientoReservado;
 import pe.puriy.reservas.dominio.modelo.Canal;
 import pe.puriy.reservas.dominio.modelo.EstadoReserva;
+import pe.puriy.reservas.dominio.modelo.ItinerarioId;
 import pe.puriy.reservas.dominio.modelo.Reserva;
 import pe.puriy.reservas.dominio.modelo.ReservaId;
 import puriy.basedatos.reservas.tables.Reservas;
@@ -76,6 +77,15 @@ class ReservaJooqAdapter implements ReservaRepositoryPort {
     @Override
     public Optional<Reserva> buscarPorId(ReservaId id) {
         return buscar(RESERVAS.ID.eq(id.valor()));
+    }
+
+    @Override
+    public List<Reserva> listarDelItinerario(ItinerarioId id) {
+        return dsl.select(RESERVAS, ASIENTOS)
+                .from(RESERVAS)
+                .where(RESERVAS.ITINERARIO_ID.eq(id.valor()))
+                .orderBy(RESERVAS.ES_CONTINUACION)
+                .fetch(fila -> ReservaPersistenceMapper.aDominio(fila.value1(), fila.value2()));
     }
 
     @Override

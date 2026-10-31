@@ -10,6 +10,7 @@ import pe.puriy.reservas.adaptador.entrada.programado.LiberarReservasVencidasJob
 import pe.puriy.reservas.aplicacion.puerto.entrada.LiberarReservasVencidasCommand;
 import pe.puriy.reservas.aplicacion.puerto.entrada.LiberarReservasVencidasUseCase;
 import pe.puriy.reservas.dominio.modelo.Canal;
+import pe.puriy.reservas.dominio.modelo.PoliticaDeConexion;
 import pe.puriy.reservas.dominio.modelo.PoliticaReserva;
 import pe.puriy.reservas.dominio.modelo.ReglasDeCanal;
 
@@ -28,6 +29,12 @@ class ReservasConfig {
                         new ReglasDeCanal(
                                 deCanal.retencion(), deCanal.maximoAsientos(), deCanal.cierreAntesDelPaso())));
         return new PoliticaReserva(reglas);
+    }
+
+    @Bean
+    PoliticaDeConexion politicaDeConexion(ReservasProperties propiedades) {
+        var conexiones = propiedades.conexiones();
+        return new PoliticaDeConexion(conexiones.escalaMinima(), conexiones.escalaMaxima());
     }
 
     @Bean

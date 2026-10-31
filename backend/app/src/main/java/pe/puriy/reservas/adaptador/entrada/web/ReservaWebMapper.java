@@ -43,7 +43,7 @@ final class ReservaWebMapper {
                 reserva.venceEn().atZone(ZonaHoraria.PERU).toOffsetDateTime());
     }
 
-    private static Titular aTitular(@Nullable TitularRequest titular) {
+    static Titular aTitular(@Nullable TitularRequest titular) {
         if (titular == null) {
             return Titular.anonimo();
         }

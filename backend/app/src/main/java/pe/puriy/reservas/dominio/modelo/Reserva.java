@@ -8,6 +8,7 @@ import lombok.Builder;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
+import org.jspecify.annotations.Nullable;
 import pe.puriy.compartido.dominio.Monto;
 import pe.puriy.compartido.dominio.SalidaId;
 import pe.puriy.reservas.dominio.excepcion.ReservaInvalidaException;
@@ -24,6 +25,9 @@ public final class Reserva {
     private final ReservaId id;
 
     private final UUID claveIdempotencia;
+
+    private final @Nullable ItinerarioId itinerarioId;
+    private final boolean esContinuacion;
 
     @ToString.Include
     private final SalidaId salidaId;
@@ -46,6 +50,8 @@ public final class Reserva {
     private Reserva(
             ReservaId id,
             UUID claveIdempotencia,
+            @Nullable ItinerarioId itinerarioId,
+            boolean esContinuacion,
             SalidaId salidaId,
             Tramo tramo,
             Canal canal,
@@ -57,6 +63,8 @@ public final class Reserva {
             long version) {
         this.id = id;
         this.claveIdempotencia = claveIdempotencia;
+        this.itinerarioId = itinerarioId;
+        this.esContinuacion = esContinuacion;
         this.salidaId = salidaId;
         this.tramo = tramo;
         this.canal = canal;
@@ -70,6 +78,26 @@ public final class Reserva {
 
     public static Reserva retener(
             SolicitudDeReserva solicitud, List<AsientoReservado> asientos, ReglasDeCanal reglas, Instant ahora) {
+        return retener(null, false, solicitud, asientos, reglas, ahora);
+    }
+
+    static Reserva retenerEnItinerario(
+            ItinerarioId itinerarioId,
+            boolean esContinuacion,
+            SolicitudDeReserva solicitud,
+            List<AsientoReservado> asientos,
+            ReglasDeCanal reglas,
+            Instant ahora) {
+        return retener(itinerarioId, esContinuacion, solicitud, asientos, reglas, ahora);
+    }
+
+    private static Reserva retener(
+            @Nullable ItinerarioId itinerarioId,
+            boolean esContinuacion,
+            SolicitudDeReserva solicitud,
+            List<AsientoReservado> asientos,
+            ReglasDeCanal reglas,
+            Instant ahora) {
         exigirAsientos(asientos, reglas);
         if (solicitud.canal().tieneLimiteDeReservasActivas()
                 && !solicitud.titular().estaIdentificado()) {
@@ -78,6 +106,8 @@ public final class Reserva {
         return new Reserva(
                 ReservaId.nuevo(),
                 solicitud.claveIdempotencia(),
+                itinerarioId,
+                esContinuacion,
                 solicitud.salidaId(),
                 solicitud.tramo(),
                 solicitud.canal(),
@@ -87,6 +117,10 @@ public final class Reserva {
                 ahora.plus(reglas.retencion()),
                 EstadoReserva.RETENIDA,
                 VERSION_INICIAL);
+    }
+
+    public boolean esDeItinerario() {
+        return itinerarioId != null;
     }
 
     public Monto total() {

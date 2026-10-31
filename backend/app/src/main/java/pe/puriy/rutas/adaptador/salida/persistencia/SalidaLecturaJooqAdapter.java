@@ -18,6 +18,7 @@ import java.time.Instant;
 import java.util.Comparator;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.jooq.Condition;
 import org.jooq.DSLContext;
 import org.jooq.Field;
 import org.jooq.Record;
@@ -57,6 +58,21 @@ class SalidaLecturaJooqAdapter implements SalidaLecturaPort {
     @Override
     public List<SalidaEntreCiudades> buscarQuePasanEntre(
             String ciudadOrigen, String ciudadDestino, Instant desde, Instant hasta) {
+        return buscar(
+                enCiudad(TERMINAL_ORIGEN, ciudadOrigen).and(enCiudad(TERMINAL_DESTINO, ciudadDestino)), desde, hasta);
+    }
+
+    @Override
+    public List<SalidaEntreCiudades> buscarQueSalenDe(String ciudad, Instant desde, Instant hasta) {
+        return buscar(enCiudad(TERMINAL_ORIGEN, ciudad), desde, hasta);
+    }
+
+    @Override
+    public List<SalidaEntreCiudades> buscarQueLleganA(String ciudad, Instant desde, Instant hasta) {
+        return buscar(enCiudad(TERMINAL_DESTINO, ciudad), desde, hasta);
+    }
+
+    private List<SalidaEntreCiudades> buscar(Condition ciudades, Instant desde, Instant hasta) {
         return dsl
                 .select(
                         SALIDAS.ID,
@@ -83,8 +99,7 @@ class SalidaLecturaJooqAdapter implements SalidaLecturaPort {
                 .on(DESTINO.RUTA_ID.eq(SALIDAS.RUTA_ID).and(DESTINO.ORDEN.gt(ORIGEN.ORDEN)))
                 .join(TERMINAL_DESTINO)
                 .on(TERMINAL_DESTINO.ID.eq(DESTINO.TERMINAL_ID))
-                .where(lower(TERMINAL_ORIGEN.CIUDAD).eq(lower(val(ciudadOrigen))))
-                .and(lower(TERMINAL_DESTINO.CIUDAD).eq(lower(val(ciudadDestino))))
+                .where(ciudades)
                 .and(SALIDAS.PARTE_EN.lt(SalidaPersistenceMapper.aFecha(hasta)))
                 .and(SALIDAS.LLEGA_EN.gt(SalidaPersistenceMapper.aFecha(desde)))
                 .fetch(SalidaLecturaJooqAdapter::aSalida)
@@ -92,6 +107,10 @@ class SalidaLecturaJooqAdapter implements SalidaLecturaPort {
                 .filter(salida -> pasaEntre(salida.origen().horaDePaso(), desde, hasta))
                 .sorted(Comparator.comparing(salida -> salida.origen().horaDePaso()))
                 .toList();
+    }
+
+    private static Condition enCiudad(Terminales terminal, String ciudad) {
+        return lower(terminal.CIUDAD).eq(lower(val(ciudad)));
     }
 
     private static SalidaEntreCiudades aSalida(Record fila) {

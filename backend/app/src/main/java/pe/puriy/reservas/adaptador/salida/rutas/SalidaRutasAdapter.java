@@ -1,5 +1,6 @@
 package pe.puriy.reservas.adaptador.salida.rutas;
 
+import java.time.Instant;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
@@ -8,13 +9,18 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import pe.puriy.compartido.dominio.RecursoNoEncontradoException;
 import pe.puriy.compartido.dominio.SalidaId;
+import pe.puriy.compartido.dominio.ZonaHoraria;
 import pe.puriy.reservas.aplicacion.puerto.salida.SalidaPort;
 import pe.puriy.reservas.dominio.modelo.Parada;
 import pe.puriy.reservas.dominio.modelo.ParadaDelTramo;
 import pe.puriy.reservas.dominio.modelo.Salida;
 import pe.puriy.reservas.dominio.modelo.SalidaCandidata;
+import pe.puriy.rutas.aplicacion.puerto.entrada.BuscarSalidasDesdeCiudadQuery;
+import pe.puriy.rutas.aplicacion.puerto.entrada.BuscarSalidasDesdeCiudadUseCase;
 import pe.puriy.rutas.aplicacion.puerto.entrada.BuscarSalidasEntreCiudadesQuery;
 import pe.puriy.rutas.aplicacion.puerto.entrada.BuscarSalidasEntreCiudadesUseCase;
+import pe.puriy.rutas.aplicacion.puerto.entrada.BuscarSalidasHaciaCiudadQuery;
+import pe.puriy.rutas.aplicacion.puerto.entrada.BuscarSalidasHaciaCiudadUseCase;
 import pe.puriy.rutas.aplicacion.puerto.entrada.ObtenerSalidaParaReservaQuery;
 import pe.puriy.rutas.aplicacion.puerto.entrada.ObtenerSalidaParaReservaUseCase;
 import pe.puriy.rutas.aplicacion.puerto.entrada.SalidaEntreCiudades;
@@ -28,6 +34,8 @@ class SalidaRutasAdapter implements SalidaPort {
 
     private final ObtenerSalidaParaReservaUseCase obtenerSalida;
     private final BuscarSalidasEntreCiudadesUseCase buscarSalidas;
+    private final BuscarSalidasDesdeCiudadUseCase buscarDesdeCiudad;
+    private final BuscarSalidasHaciaCiudadUseCase buscarHaciaCiudad;
 
     @Override
     public Optional<Salida> buscar(SalidaId id) {
@@ -42,9 +50,25 @@ class SalidaRutasAdapter implements SalidaPort {
     public List<SalidaCandidata> buscarEntreCiudades(
             String ciudadOrigen, String ciudadDestino, LocalDate fechaDeViaje) {
         var consulta = new BuscarSalidasEntreCiudadesQuery(ciudadOrigen, ciudadDestino, fechaDeViaje);
-        return buscarSalidas.ejecutar(consulta).stream()
-                .map(SalidaRutasAdapter::aCandidata)
-                .toList();
+        return aCandidatas(buscarSalidas.ejecutar(consulta));
+    }
+
+    @Override
+    public List<SalidaCandidata> buscarDesdeCiudad(String ciudad, LocalDate fechaDeViaje) {
+        var consulta = new BuscarSalidasDesdeCiudadQuery(
+                ciudad,
+                fechaDeViaje.atStartOfDay(ZonaHoraria.PERU).toInstant(),
+                fechaDeViaje.plusDays(1).atStartOfDay(ZonaHoraria.PERU).toInstant());
+        return aCandidatas(buscarDesdeCiudad.ejecutar(consulta));
+    }
+
+    @Override
+    public List<SalidaCandidata> buscarHaciaCiudad(String ciudad, Instant desde, Instant hasta) {
+        return aCandidatas(buscarHaciaCiudad.ejecutar(new BuscarSalidasHaciaCiudadQuery(ciudad, desde, hasta)));
+    }
+
+    private static List<SalidaCandidata> aCandidatas(List<SalidaEntreCiudades> salidas) {
+        return salidas.stream().map(SalidaRutasAdapter::aCandidata).toList();
     }
 
     private static Salida aSalida(SalidaParaReserva salida) {

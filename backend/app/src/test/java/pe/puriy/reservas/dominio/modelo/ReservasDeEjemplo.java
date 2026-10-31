@@ -24,7 +24,10 @@ public final class ReservasDeEjemplo {
     public static final TerminalId TRUJILLO = TerminalId.nuevo();
     public static final TerminalId TUMBES = TerminalId.nuevo();
 
-    public static final List<String> CIUDADES = List.of("Lima", "Chimbote", "Trujillo", "Tumbes");
+    public static final TerminalId CAJAMARCA = TerminalId.nuevo();
+
+    private static final Map<TerminalId, String> CIUDADES =
+            Map.of(LIMA, "Lima", CHIMBOTE, "Chimbote", TRUJILLO, "Trujillo", TUMBES, "Tumbes", CAJAMARCA, "Cajamarca");
 
     public static final Tramo LIMA_TUMBES = new Tramo(0, 3);
     public static final Tramo LIMA_CHIMBOTE = new Tramo(0, 1);
@@ -45,6 +48,15 @@ public final class ReservasDeEjemplo {
                         new Parada(1, CHIMBOTE, SALE_DE_LIMA.plus(Duration.ofMinutes(390))),
                         new Parada(2, TRUJILLO, SALE_DE_LIMA.plus(Duration.ofMinutes(510))),
                         new Parada(3, TUMBES, SALE_DE_LIMA.plus(Duration.ofMinutes(1200)))),
+                Map.of(1, 1, 2, 1, 13, 2, 14, 2));
+    }
+
+    public static Salida salidaEntre(TerminalId origen, TerminalId destino, Instant parteEn) {
+        return new Salida(
+                SalidaId.nuevo(),
+                RutaId.nuevo(),
+                TipoServicio.CAMA,
+                List.of(new Parada(0, origen, parteEn), new Parada(1, destino, parteEn.plus(Duration.ofHours(6)))),
                 Map.of(1, 1, 2, 1, 13, 2, 14, 2));
     }
 
@@ -72,7 +84,7 @@ public final class ReservasDeEjemplo {
 
     private static ParadaDelTramo paradaDelTramo(Salida salida, int orden) {
         var parada = salida.paradas().get(orden);
-        var ciudad = CIUDADES.get(orden);
+        var ciudad = CIUDADES.get(parada.terminalId());
         return new ParadaDelTramo(orden, parada.terminalId(), "Terminal " + ciudad, ciudad, parada.horaDePaso());
     }
 }

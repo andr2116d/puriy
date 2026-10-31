@@ -8,6 +8,7 @@ import pe.puriy.compartido.dominio.SalidaId;
 import pe.puriy.reservas.dominio.modelo.AsientoReservado;
 import pe.puriy.reservas.dominio.modelo.Canal;
 import pe.puriy.reservas.dominio.modelo.EstadoReserva;
+import pe.puriy.reservas.dominio.modelo.ItinerarioId;
 import pe.puriy.reservas.dominio.modelo.Reserva;
 import pe.puriy.reservas.dominio.modelo.ReservaId;
 import pe.puriy.reservas.dominio.modelo.Titular;
@@ -22,6 +23,9 @@ final class ReservaPersistenceMapper {
         var registro = new ReservasRecord();
         registro.setId(reserva.id().valor());
         registro.setClaveIdempotencia(reserva.claveIdempotencia());
+        var itinerarioId = reserva.itinerarioId();
+        registro.setItinerarioId(itinerarioId == null ? null : itinerarioId.valor());
+        registro.setEsContinuacion(reserva.esContinuacion());
         registro.setSalidaId(reserva.salidaId().valor());
         registro.setOrdenOrigen((short) reserva.tramo().ordenOrigen());
         registro.setOrdenDestino((short) reserva.tramo().ordenDestino());
@@ -37,9 +41,12 @@ final class ReservaPersistenceMapper {
     }
 
     static Reserva aDominio(ReservasRecord registro, List<AsientoReservado> asientos) {
+        var itinerarioId = registro.getItinerarioId();
         return Reserva.reconstituir()
                 .id(new ReservaId(registro.getId()))
                 .claveIdempotencia(registro.getClaveIdempotencia())
+                .itinerarioId(itinerarioId == null ? null : new ItinerarioId(itinerarioId))
+                .esContinuacion(registro.getEsContinuacion())
                 .salidaId(new SalidaId(registro.getSalidaId()))
                 .tramo(new Tramo(registro.getOrdenOrigen(), registro.getOrdenDestino()))
                 .canal(Canal.valueOf(registro.getCanal()))
