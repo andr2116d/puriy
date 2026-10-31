@@ -9,12 +9,6 @@ on:
       version:
         required: true
         type: string
-      backend:
-        type: boolean
-        default: true
-      funciones:
-        type: boolean
-        default: true
       frontend:
         type: boolean
         default: true
@@ -57,11 +51,16 @@ jobs:
             echo "existe=false" >> "$GITHUB_OUTPUT"
             echo "::notice::$AMBIENTE todavía no tiene Terraform"
           fi
+      - name: Traer las funciones
+        if: steps.terraform.outputs.existe == 'true'
+        uses: actions/download-artifact@v8
+        with:
+          name: funciones
+          path: backend/funciones
       - name: Iniciar Terraform
         if: steps.terraform.outputs.existe == 'true'
         uses: ./.github/actions/preparar-terraform
         with:
-          rol: ${{ vars.AWS_ROLE_ARN }}
           carpeta: infra/ambientes/${{ inputs.ambiente }}
           region: ${{ vars.AWS_REGION }}
           bucket: ${{ vars.TF_STATE_BUCKET }}
@@ -82,9 +81,20 @@ jobs:
       - uses: actions/checkout@v7
       - name: Entrar a AWS
         if: needs.plan.outputs.hay-terraform == 'true'
+        uses: aws-actions/configure-aws-credentials@v6
+        with:
+          role-to-assume: ${{ vars.AWS_ROLE_ARN }}
+          aws-region: ${{ vars.AWS_REGION }}
+      - name: Traer las funciones
+        if: needs.plan.outputs.hay-terraform == 'true'
+        uses: actions/download-artifact@v8
+        with:
+          name: funciones
+          path: backend/funciones
+      - name: Iniciar Terraform
+        if: needs.plan.outputs.hay-terraform == 'true'
         uses: ./.github/actions/preparar-terraform
         with:
-          rol: ${{ vars.AWS_ROLE_ARN }}
           carpeta: infra/ambientes/${{ inputs.ambiente }}
           region: ${{ vars.AWS_REGION }}
           bucket: ${{ vars.TF_STATE_BUCKET }}
@@ -92,12 +102,6 @@ jobs:
         if: needs.plan.outputs.hay-terraform == 'true'
         working-directory: infra/ambientes/${{ inputs.ambiente }}
         run: terraform apply -input=false -auto-approve
-      - name: Backend
-        if: inputs.backend
-        run: echo "Se reemplazan las instancias del backend por la versión $VERSION"
-      - name: Funciones
-        if: inputs.funciones
-        run: echo "Se actualizan las Lambdas a la versión $VERSION"
 
   frontend:
     name: Frontend (${{ inputs.ambiente }})

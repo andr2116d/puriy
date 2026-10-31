@@ -19,8 +19,6 @@ jobs:
     name: Qué cambió
     runs-on: ubuntu-latest
     outputs:
-      backend: ${{ steps.filtro.outputs.backend }}
-      funciones: ${{ steps.filtro.outputs.funciones }}
       frontend: ${{ steps.filtro.outputs.frontend }}
     steps:
       - uses: actions/checkout@v7
@@ -28,32 +26,22 @@ jobs:
         id: filtro
         with:
           filters: |
-            backend:
-              - 'backend/app/**'
-              - 'backend/build-logic/**'
-              - 'backend/gradle/**'
-            funciones:
-              - 'backend/funciones/**'
             frontend:
               - 'frontend/**'
-
-  construir-backend:
-    name: Construir el backend
-    needs: cambios
-    if: needs.cambios.outputs.backend == 'true'
-    runs-on: ubuntu-latest
-    steps:
-      - name: Imagen
-        run: echo "Se construye la imagen del backend y se sube a ECR"
+              - 'infra/**'
 
   construir-funciones:
     name: Construir las funciones
-    needs: cambios
-    if: needs.cambios.outputs.funciones == 'true'
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     steps:
-      - name: Paquetes
-        run: echo "Se empaquetan las Lambdas y se suben a S3"
+      - uses: actions/checkout@v7
+      - uses: ./.github/actions/empaquetar-funciones
+      - uses: actions/upload-artifact@v7
+        with:
+          name: funciones
+          path: backend/funciones/*/build/distributions/*.zip
+          retention-days: 1
 
   construir-frontend:
     name: Construir el frontend
@@ -66,7 +54,7 @@ jobs:
 
   desplegar:
     name: Desplegar
-    needs: [cambios, construir-backend, construir-funciones, construir-frontend]
+    needs: [cambios, construir-funciones, construir-frontend]
     if: always() && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled')
     permissions:
       contents: read
@@ -75,8 +63,6 @@ jobs:
     with:
       ambiente: dev
       version: ${{ github.sha }}
-      backend: ${{ needs.cambios.outputs.backend == 'true' }}
-      funciones: ${{ needs.cambios.outputs.funciones == 'true' }}
       frontend: ${{ needs.cambios.outputs.frontend == 'true' }}
 
   avisar:
