@@ -55,7 +55,7 @@ jobs:
           rol: ${{ vars.AWS_ROL_LECTURA }}
           carpeta: infra/ambientes/${{ inputs.ambiente }}
           region: ${{ vars.AWS_REGION }}
-          bucket: ${{ vars.TF_ESTADO_BUCKET }}
+          bucket: ${{ vars.TF_STATE_BUCKET }}
       - name: Plan
         if: steps.terraform.outputs.existe == 'true'
         working-directory: ${{ env.CARPETA }}
@@ -72,10 +72,10 @@ jobs:
         if: needs.plan.outputs.hay-terraform == 'true'
         uses: ./.github/actions/preparar-terraform
         with:
-          rol: ${{ vars.AWS_ROL_DESPLIEGUE }}
+          rol: ${{ vars.AWS_ROLE_ARN }}
           carpeta: infra/ambientes/${{ inputs.ambiente }}
           region: ${{ vars.AWS_REGION }}
-          bucket: ${{ vars.TF_ESTADO_BUCKET }}
+          bucket: ${{ vars.TF_STATE_BUCKET }}
       - name: Aplicar
         if: needs.plan.outputs.hay-terraform == 'true'
         working-directory: infra/ambientes/${{ inputs.ambiente }}

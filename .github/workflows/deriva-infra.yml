@@ -46,7 +46,7 @@ jobs:
           rol: ${{ vars.AWS_ROL_LECTURA }}
           carpeta: ${{ matrix.carpeta }}
           region: ${{ vars.AWS_REGION }}
-          bucket: ${{ vars.TF_ESTADO_BUCKET }}
+          bucket: ${{ vars.TF_STATE_BUCKET }}
       # Con -detailed-exitcode, cualquier diferencia con AWS hace fallar el paso
       - name: Comparar
         if: steps.terraform.outputs.existe == 'true'

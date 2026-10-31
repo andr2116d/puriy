@@ -28,7 +28,7 @@ jobs:
     runs-on: ubuntu-latest
     environment: dev
     env:
-      AWS_ROL: ${{ vars.AWS_ROL_DESPLIEGUE }}
+      AWS_ROL: ${{ vars.AWS_ROLE_ARN }}
     steps:
       - name: Apagar
         run: echo "Se dejan en cero las instancias de dev y se detiene la base de datos"
@@ -39,7 +39,7 @@ jobs:
     runs-on: ubuntu-latest
     environment: dev
     env:
-      AWS_ROL: ${{ vars.AWS_ROL_DESPLIEGUE }}
+      AWS_ROL: ${{ vars.AWS_ROLE_ARN }}
     steps:
       - name: Encender
         run: echo "Se enciende la base de datos de dev y se levantan las instancias"
