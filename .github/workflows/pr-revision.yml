@@ -40,12 +40,11 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       backend: ${{ steps.filtro.outputs.backend }}
-      migraciones: ${{ steps.filtro.outputs.migraciones }}
       funciones: ${{ steps.filtro.outputs.funciones }}
       frontend: ${{ steps.filtro.outputs.frontend }}
       infra: ${{ steps.filtro.outputs.infra }}
     steps:
-      - uses: dorny/paths-filter@v3
+      - uses: dorny/paths-filter@v4
         id: filtro
         with:
           filters: |
@@ -54,13 +53,16 @@ jobs:
               - 'backend/build-logic/**'
               - 'backend/gradle/**'
               - 'backend/*.kts'
-            migraciones:
-              - 'backend/app/src/main/resources/db/migration/**'
+              - '.github/workflows/pr-revision.yml'
             funciones:
               - 'backend/funciones/**'
+              - 'backend/build-logic/**'
               - 'backend/gradle/**'
+              - 'backend/*.kts'
+              - '.github/workflows/pr-revision.yml'
             frontend:
               - 'frontend/**'
+              - '.github/workflows/pr-revision.yml'
             infra:
               - 'infra/**'
 
@@ -86,34 +88,77 @@ jobs:
     needs: cambios
     if: needs.cambios.outputs.backend == 'true'
     runs-on: ubuntu-latest
+    timeout-minutes: 30
+    defaults:
+      run:
+        working-directory: backend
     steps:
-      - name: Preparar
-        run: echo "Se instalan Java 25 y Gradle"
-      - name: Probar
-        run: echo "Se compila y se prueba el backend con ./gradlew check"
-      - name: Migraciones
-        if: needs.cambios.outputs.migraciones == 'true'
-        run: echo "Se revisa que las migraciones nuevas se apliquen en una base limpia"
+      - uses: actions/checkout@v7
+      - uses: actions/setup-java@v6
+        with:
+          distribution: temurin
+          java-version: '25'
+      - uses: gradle/actions/setup-gradle@v6
+      - name: Formato
+        run: ./gradlew spotlessCheck
+      - name: Compilar, analizar y probar
+        run: ./gradlew :app:check
+      - name: Guardar el reporte si falló
+        if: failure()
+        uses: actions/upload-artifact@v7
+        with:
+          name: reporte-backend
+          path: backend/app/build/reports/tests/
+          retention-days: 7
 
   funciones:
     name: Funciones
     needs: cambios
     if: needs.cambios.outputs.funciones == 'true'
     runs-on: ubuntu-latest
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: backend
     steps:
-      - name: Probar
-        run: echo "Se compilan y se prueban las tres Lambdas"
+      - uses: actions/checkout@v7
+      - uses: actions/setup-java@v6
+        with:
+          distribution: temurin
+          java-version: '25'
+      - uses: gradle/actions/setup-gradle@v6
+      - name: Formato
+        run: ./gradlew spotlessCheck
+      - name: Probar y empaquetar las tres Lambdas
+        run: >-
+          ./gradlew
+          :funciones:generar-boleto:check :funciones:generar-boleto:empaquetar
+          :funciones:enviar-correo:check :funciones:enviar-correo:empaquetar
+          :funciones:publicar-asientos:check :funciones:publicar-asientos:empaquetar
 
   frontend:
     name: Frontend
     needs: cambios
     if: needs.cambios.outputs.frontend == 'true'
     runs-on: ubuntu-latest
+    timeout-minutes: 10
+    defaults:
+      run:
+        working-directory: frontend
     steps:
-      - name: Probar
-        run: echo "Se revisa el código y se prueba el frontend"
-      - name: Compilar
-        run: echo "Se comprueba que el frontend compile"
+      - uses: actions/checkout@v7
+      - uses: pnpm/action-setup@v6
+        with:
+          package_json_file: frontend/package.json
+      - uses: actions/setup-node@v7
+        with:
+          node-version: '24'
+          cache: pnpm
+          cache-dependency-path: frontend/pnpm-lock.yaml
+      - name: Instalar
+        run: pnpm install --frozen-lockfile
+      - name: Lint, tipos, pruebas y build
+        run: pnpm check
 
   infra:
     name: Infraestructura
