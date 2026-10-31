@@ -25,3 +25,14 @@ cd backend
 ```
 
 Con la API levantada, el contrato está en `http://localhost:8080/swagger-ui.html`.
+
+## Frontend
+
+Requisitos: Node 22 o superior y pnpm.
+
+```bash
+cd frontend
+pnpm install
+pnpm dev     # servidor de desarrollo en http://localhost:5173
+pnpm check   # lint, tipos, pruebas y build
+```
