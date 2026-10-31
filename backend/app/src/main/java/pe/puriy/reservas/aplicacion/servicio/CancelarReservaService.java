@@ -8,6 +8,7 @@ import pe.puriy.reservas.aplicacion.puerto.entrada.CancelarReservaCommand;
 import pe.puriy.reservas.aplicacion.puerto.entrada.CancelarReservaUseCase;
 import pe.puriy.reservas.aplicacion.puerto.entrada.DetalleReserva;
 import pe.puriy.reservas.aplicacion.puerto.salida.ReservaRepositoryPort;
+import pe.puriy.reservas.dominio.excepcion.ReservaInvalidaException;
 import pe.puriy.reservas.dominio.excepcion.ReservaNoEncontradaException;
 
 @Service
@@ -23,6 +24,9 @@ class CancelarReservaService implements CancelarReservaUseCase {
         var ahora = reloj.instant();
         var reserva =
                 reservas.buscarPorId(comando.id()).orElseThrow(() -> new ReservaNoEncontradaException(comando.id()));
+        if (reserva.esDeItinerario()) {
+            throw ReservaInvalidaException.deItinerario();
+        }
         if (!reserva.estado().estaActiva()) {
             return DetalleReserva.desde(reserva, ahora);
         }

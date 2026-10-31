@@ -63,8 +63,16 @@ public record Salida(
         }
     }
 
+    public Parada paradaDeOrigen(Tramo tramo) {
+        return paradas.get(tramo.ordenOrigen());
+    }
+
+    public Parada paradaDeDestino(Tramo tramo) {
+        return paradas.get(tramo.ordenDestino());
+    }
+
     private Instant horaDePasoPorOrigen(Tramo tramo) {
-        return paradas.get(tramo.ordenOrigen()).horaDePaso();
+        return paradaDeOrigen(tramo).horaDePaso();
     }
 
     private int ordenDe(TerminalId terminal) {
