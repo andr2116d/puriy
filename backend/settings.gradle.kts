@@ -16,3 +16,6 @@ dependencyResolutionManagement {
 rootProject.name = "puriy"
 
 include("app")
+include("funciones:generar-boleto")
+include("funciones:enviar-correo")
+include("funciones:publicar-asientos")

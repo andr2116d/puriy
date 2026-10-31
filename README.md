@@ -22,9 +22,12 @@ cd backend
 ./gradlew integrationTest   # pruebas contra PostgreSQL real
 ./gradlew check             # formato, análisis estático y todas las pruebas
 ./gradlew spotlessApply     # aplica el formato
+./gradlew assemble          # compila y arma el ZIP de cada Lambda
 ```
 
 Con la API levantada, el contrato está en `http://localhost:8080/swagger-ui.html`.
+
+Cada Lambda queda en `backend/funciones/<nombre>/build/distributions/<nombre>.zip`, para el runtime `java25`.
 
 ## Frontend
 
