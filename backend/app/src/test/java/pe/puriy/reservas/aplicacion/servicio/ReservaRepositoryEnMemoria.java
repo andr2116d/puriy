@@ -1,6 +1,7 @@
 package pe.puriy.reservas.aplicacion.servicio;
 
 import java.time.Instant;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -15,6 +16,7 @@ import pe.puriy.reservas.dominio.excepcion.ReservaActivaExistenteException;
 import pe.puriy.reservas.dominio.modelo.AsientoReservado;
 import pe.puriy.reservas.dominio.modelo.AsientosOcupados;
 import pe.puriy.reservas.dominio.modelo.EstadoReserva;
+import pe.puriy.reservas.dominio.modelo.ItinerarioId;
 import pe.puriy.reservas.dominio.modelo.Reserva;
 import pe.puriy.reservas.dominio.modelo.ReservaId;
 import pe.puriy.reservas.dominio.modelo.TramoDeSalida;
@@ -45,6 +47,14 @@ class ReservaRepositoryEnMemoria implements ReservaRepositoryPort, ReservaLectur
     @Override
     public Optional<Reserva> buscarPorId(ReservaId id) {
         return Optional.ofNullable(reservas.get(id));
+    }
+
+    @Override
+    public List<Reserva> listarDelItinerario(ItinerarioId id) {
+        return reservas.values().stream()
+                .filter(reserva -> id.equals(reserva.itinerarioId()))
+                .sorted(Comparator.comparing(Reserva::esContinuacion))
+                .toList();
     }
 
     @Override
@@ -101,7 +111,10 @@ class ReservaRepositoryEnMemoria implements ReservaRepositoryPort, ReservaLectur
     }
 
     private static boolean esDelMismoTitular(Reserva otra, Reserva nueva, Instant ahora) {
-        if (!nueva.canal().tieneLimiteDeReservasActivas() || !otra.canal().tieneLimiteDeReservasActivas()) {
+        if (!nueva.canal().tieneLimiteDeReservasActivas()
+                || !otra.canal().tieneLimiteDeReservasActivas()
+                || nueva.esContinuacion()
+                || otra.esContinuacion()) {
             return false;
         }
         var unTitular = otra.titular();
@@ -124,6 +137,8 @@ class ReservaRepositoryEnMemoria implements ReservaRepositoryPort, ReservaLectur
         return Reserva.reconstituir()
                 .id(reserva.id())
                 .claveIdempotencia(reserva.claveIdempotencia())
+                .itinerarioId(reserva.itinerarioId())
+                .esContinuacion(reserva.esContinuacion())
                 .salidaId(reserva.salidaId())
                 .tramo(reserva.tramo())
                 .canal(reserva.canal())

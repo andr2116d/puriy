@@ -22,6 +22,17 @@ public final class ReservaInvalidaException extends ReglaDeNegocioException {
                 "asiento-repetido", "El asiento %d está más de una vez en la reserva".formatted(numero));
     }
 
+    public static ReservaInvalidaException asientosDistintosPorTramo() {
+        return new ReservaInvalidaException(
+                "asientos-distintos-por-tramo",
+                "Los dos tramos del itinerario deben tener la misma cantidad de asientos");
+    }
+
+    public static ReservaInvalidaException deItinerario() {
+        return new ReservaInvalidaException(
+                "reserva-de-itinerario", "Esta reserva es parte de un itinerario: se cancela el itinerario completo");
+    }
+
     public static ReservaInvalidaException sinTitular() {
         return new ReservaInvalidaException(
                 "reserva-sin-titular", "La reserva necesita un cliente, un correo o un navegador que la identifique");
