@@ -3,6 +3,15 @@ resource "aws_s3_bucket" "web" {
   force_destroy = true
 }
 
+resource "aws_s3_bucket_versioning" "web" {
+  bucket = aws_s3_bucket.web.id
+
+  versioning_configuration {
+    status = "Enabled"
+  }
+}
+
+
 resource "aws_s3_bucket_public_access_block" "web" {
   bucket = aws_s3_bucket.web.id
 
