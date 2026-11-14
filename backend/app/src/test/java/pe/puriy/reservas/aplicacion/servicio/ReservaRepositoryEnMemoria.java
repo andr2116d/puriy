@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.UUID;
 import pe.puriy.compartido.dominio.EdicionConcurrenteException;
 import pe.puriy.reservas.aplicacion.puerto.salida.ReservaLecturaPort;
 import pe.puriy.reservas.aplicacion.puerto.salida.ReservaRepositoryPort;
@@ -27,9 +28,7 @@ class ReservaRepositoryEnMemoria implements ReservaRepositoryPort, ReservaLectur
 
     @Override
     public Reserva agregarUnaVez(Reserva reserva) {
-        var existente = reservas.values().stream()
-                .filter(otra -> otra.claveIdempotencia().equals(reserva.claveIdempotencia()))
-                .findFirst();
+        var existente = buscarPorClave(reserva.claveIdempotencia());
         if (existente.isPresent()) {
             return existente.get();
         }
@@ -47,6 +46,13 @@ class ReservaRepositoryEnMemoria implements ReservaRepositoryPort, ReservaLectur
     @Override
     public Optional<Reserva> buscarPorId(ReservaId id) {
         return Optional.ofNullable(reservas.get(id));
+    }
+
+    @Override
+    public Optional<Reserva> buscarPorClave(UUID claveIdempotencia) {
+        return reservas.values().stream()
+                .filter(reserva -> reserva.claveIdempotencia().equals(claveIdempotencia))
+                .findFirst();
     }
 
     @Override

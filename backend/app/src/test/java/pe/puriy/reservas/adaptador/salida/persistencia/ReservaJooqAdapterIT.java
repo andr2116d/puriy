@@ -103,6 +103,17 @@ class ReservaJooqAdapterIT {
     }
 
     @Test
+    void encuentra_la_reserva_por_su_clave_de_idempotencia() {
+        var reserva = retener(LIMA_TUMBES, otroInvitado(), AHORA, 1);
+        reservas.agregarUnaVez(reserva);
+
+        var encontrada = reservas.buscarPorClave(reserva.claveIdempotencia());
+
+        assertThat(encontrada).map(Reserva::id).contains(reserva.id());
+        assertThat(reservas.buscarPorClave(UUID.randomUUID())).isEmpty();
+    }
+
+    @Test
     void un_correo_no_puede_tener_dos_reservas_retenidas() {
         var mismoCorreo = new Titular(null, "repetido@correo.pe", null);
         reservas.agregarUnaVez(retener(LIMA_TUMBES, mismoCorreo, AHORA, 1));

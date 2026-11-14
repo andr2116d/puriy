@@ -95,6 +95,29 @@ class RetenerAsientosServiceTest {
     }
 
     @Test
+    void un_reintento_despues_del_cierre_de_venta_devuelve_la_reserva_ya_retenida() {
+        var comando = escenario.comando(LIMA, TUMBES, Canal.CLIENTE, 1);
+        var primera = escenario.retencion().ejecutar(comando);
+        var cerrada = escenario.retencion(SALE_DE_LIMA.minus(Duration.ofMinutes(10)));
+
+        var repetida = cerrada.ejecutar(comando);
+
+        assertThat(repetida.id()).isEqualTo(primera.id());
+    }
+
+    @Test
+    void un_reintento_sin_tarifa_vigente_devuelve_la_reserva_con_su_precio_original() {
+        var comando = escenario.comando(LIMA, TUMBES, Canal.CLIENTE, 1);
+        var primera = escenario.retencion().ejecutar(comando);
+        escenario.tarifas.quitar(1);
+
+        var repetida = escenario.retencion().ejecutar(comando);
+
+        assertThat(repetida.id()).isEqualTo(primera.id());
+        assertThat(repetida.total()).isEqualTo(Monto.soles(12000));
+    }
+
+    @Test
     void la_web_no_vende_en_los_ultimos_30_minutos_antes_del_paso() {
         var tarde = escenario.retencion(SALE_DE_LIMA.minus(Duration.ofMinutes(10)));
 
