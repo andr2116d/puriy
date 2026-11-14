@@ -52,6 +52,11 @@ public final class Itinerario {
         return primerTramo.total().sumar(segundoTramo.total());
     }
 
+    public boolean correspondeA(
+            Canal canal, Titular titular, AsientosSolicitados primero, AsientosSolicitados segundo) {
+        return primerTramo.correspondeA(canal, titular, primero) && segundoTramo.correspondeA(canal, titular, segundo);
+    }
+
     public boolean estaActivo() {
         return primerTramo.estado().estaActiva() || segundoTramo.estado().estaActiva();
     }

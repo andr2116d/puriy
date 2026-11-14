@@ -69,6 +69,17 @@ class ItinerarioJooqAdapterIT {
     }
 
     @Test
+    void encuentra_el_itinerario_por_su_clave_de_idempotencia() {
+        var itinerario = itinerarioDe(otroInvitado());
+        itinerarios.agregarUnaVez(itinerario);
+
+        var encontrado = itinerarios.buscarPorClave(itinerario.claveIdempotencia());
+
+        assertThat(encontrado).map(Itinerario::id).contains(itinerario.id());
+        assertThat(itinerarios.buscarPorClave(UUID.randomUUID())).isEmpty();
+    }
+
+    @Test
     void un_itinerario_cuenta_como_una_sola_reserva_del_titular() {
         var titular = otroInvitado();
         itinerarios.agregarUnaVez(itinerarioDe(titular));

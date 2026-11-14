@@ -127,6 +127,14 @@ public final class Reserva {
         return asientos.stream().map(AsientoReservado::precio).reduce(Monto.cero(), Monto::sumar);
     }
 
+    public boolean correspondeA(Canal canalPedido, Titular titularPedido, AsientosSolicitados solicitados) {
+        return canal == canalPedido
+                && titular.equals(titularPedido)
+                && salidaId.equals(solicitados.salidaId())
+                && tramo.equals(solicitados.tramo())
+                && numerosDeAsiento().equals(solicitados.numeros());
+    }
+
     public boolean estaVencida(Instant ahora) {
         return estado == EstadoReserva.RETENIDA && !ahora.isBefore(venceEn);
     }
@@ -141,6 +149,10 @@ public final class Reserva {
         } else if (estado == EstadoReserva.RETENIDA) {
             estado = EstadoReserva.CANCELADA;
         }
+    }
+
+    private List<Integer> numerosDeAsiento() {
+        return asientos.stream().map(AsientoReservado::numero).sorted().toList();
     }
 
     private static void exigirAsientos(List<AsientoReservado> asientos, ReglasDeCanal reglas) {

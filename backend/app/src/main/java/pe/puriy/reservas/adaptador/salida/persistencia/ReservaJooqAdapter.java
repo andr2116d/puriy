@@ -64,8 +64,7 @@ class ReservaJooqAdapter implements ReservaRepositoryPort {
                     .doNothing()
                     .execute();
             if (insertadas == 0) {
-                return buscar(RESERVAS.CLAVE_IDEMPOTENCIA.eq(reserva.claveIdempotencia()))
-                        .orElseThrow();
+                return buscarPorClave(reserva.claveIdempotencia()).orElseThrow();
             }
             insertarAsignaciones(reserva);
             return reserva;
@@ -77,6 +76,11 @@ class ReservaJooqAdapter implements ReservaRepositoryPort {
     @Override
     public Optional<Reserva> buscarPorId(ReservaId id) {
         return buscar(RESERVAS.ID.eq(id.valor()));
+    }
+
+    @Override
+    public Optional<Reserva> buscarPorClave(UUID claveIdempotencia) {
+        return buscar(RESERVAS.CLAVE_IDEMPOTENCIA.eq(claveIdempotencia));
     }
 
     @Override

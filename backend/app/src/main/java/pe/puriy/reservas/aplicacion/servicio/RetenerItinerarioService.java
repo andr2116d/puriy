@@ -1,10 +1,12 @@
 package pe.puriy.reservas.aplicacion.servicio;
 
 import java.time.Clock;
+import java.time.Instant;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import pe.puriy.compartido.dominio.SalidaId;
+import pe.puriy.compartido.dominio.ClaveDeIdempotenciaReutilizadaException;
 import pe.puriy.reservas.aplicacion.puerto.entrada.DetalleItinerario;
 import pe.puriy.reservas.aplicacion.puerto.entrada.RetenerItinerarioCommand;
 import pe.puriy.reservas.aplicacion.puerto.entrada.RetenerItinerarioCommand.TramoDelItinerario;
@@ -14,6 +16,7 @@ import pe.puriy.reservas.aplicacion.puerto.salida.SalidaPort;
 import pe.puriy.reservas.aplicacion.puerto.salida.TarifaPort;
 import pe.puriy.reservas.dominio.excepcion.ConexionInvalidaException;
 import pe.puriy.reservas.dominio.excepcion.SalidaNoEncontradaException;
+import pe.puriy.reservas.dominio.modelo.AsientosSolicitados;
 import pe.puriy.reservas.dominio.modelo.Itinerario;
 import pe.puriy.reservas.dominio.modelo.PoliticaDeConexion;
 import pe.puriy.reservas.dominio.modelo.PoliticaReserva;
@@ -37,42 +40,56 @@ class RetenerItinerarioService implements RetenerItinerarioUseCase {
     @Transactional
     public DetalleItinerario ejecutar(RetenerItinerarioCommand comando) {
         var ahora = reloj.instant();
+        var primero = elegir(comando.primerTramo());
+        var segundo = elegir(comando.segundoTramo());
+
+        // Un reintento recibe lo ya retenido aunque desde entonces haya cerrado la venta o cambiado la tarifa
+        var itinerario = itinerarios
+                .buscarPorClave(comando.claveIdempotencia())
+                .orElseGet(() -> retenerNuevo(comando, primero, segundo, ahora));
+        if (!itinerario.correspondeA(
+                comando.canal(), comando.titular(), primero.solicitados(), segundo.solicitados())) {
+            throw new ClaveDeIdempotenciaReutilizadaException();
+        }
+        return DetalleItinerario.desde(itinerario, ahora);
+    }
+
+    private Itinerario retenerNuevo(
+            RetenerItinerarioCommand comando, TramoElegido primero, TramoElegido segundo, Instant ahora) {
         var reglas = politica.para(comando.canal());
-        var primera = obtener(comando.primerTramo().salidaId());
-        var segunda = obtener(comando.segundoTramo().salidaId());
-        var tramoEnLaPrimera = tramoEn(primera, comando.primerTramo());
-        var tramoEnLaSegunda = tramoEn(segunda, comando.segundoTramo());
-        exigirConexion(primera, tramoEnLaPrimera, segunda, tramoEnLaSegunda);
-        primera.exigirVentaAbierta(tramoEnLaPrimera, reglas, ahora);
-        segunda.exigirVentaAbierta(tramoEnLaSegunda, reglas, ahora);
+        exigirConexion(primero, segundo);
+        primero.salida().exigirVentaAbierta(primero.tramo(), reglas, ahora);
+        segundo.salida().exigirVentaAbierta(segundo.tramo(), reglas, ahora);
 
         var solicitud = new SolicitudDeItinerario(
-                comando.claveIdempotencia(),
-                comando.canal(),
-                comando.titular(),
-                pedido(primera, tramoEnLaPrimera, comando.primerTramo()),
-                pedido(segunda, tramoEnLaSegunda, comando.segundoTramo()));
-        var itinerario = Itinerario.retener(solicitud, reglas, ahora);
-        return DetalleItinerario.desde(itinerarios.agregarUnaVez(itinerario), ahora);
+                comando.claveIdempotencia(), comando.canal(), comando.titular(), pedido(primero), pedido(segundo));
+        return itinerarios.agregarUnaVez(Itinerario.retener(solicitud, reglas, ahora));
     }
 
-    private Salida obtener(SalidaId id) {
-        return salidas.buscar(id).orElseThrow(() -> new SalidaNoEncontradaException(id));
+    private TramoElegido elegir(TramoDelItinerario pedido) {
+        var salida =
+                salidas.buscar(pedido.salidaId()).orElseThrow(() -> new SalidaNoEncontradaException(pedido.salidaId()));
+        return new TramoElegido(salida, salida.tramoEntre(pedido.origen(), pedido.destino()), pedido.asientos());
     }
 
-    private static Tramo tramoEn(Salida salida, TramoDelItinerario tramo) {
-        return salida.tramoEntre(tramo.origen(), tramo.destino());
-    }
-
-    private void exigirConexion(Salida primera, Tramo tramoEnLaPrimera, Salida segunda, Tramo tramoEnLaSegunda) {
-        var llegada = primera.paradaDeDestino(tramoEnLaPrimera);
-        var partida = segunda.paradaDeOrigen(tramoEnLaSegunda);
-        if (primera.id().equals(segunda.id()) || !conexiones.permite(llegada, partida)) {
+    private void exigirConexion(TramoElegido primero, TramoElegido segundo) {
+        var llegada = primero.salida().paradaDeDestino(primero.tramo());
+        var partida = segundo.salida().paradaDeOrigen(segundo.tramo());
+        if (primero.salida().id().equals(segundo.salida().id()) || !conexiones.permite(llegada, partida)) {
             throw new ConexionInvalidaException();
         }
     }
 
-    private TramoPedido pedido(Salida salida, Tramo tramo, TramoDelItinerario pedido) {
-        return new TramoPedido(salida.id(), tramo, AsientosConPrecio.de(tarifas, salida, tramo, pedido.asientos()));
+    private TramoPedido pedido(TramoElegido elegido) {
+        var salida = elegido.salida();
+        var asientos = AsientosConPrecio.de(tarifas, salida, elegido.tramo(), elegido.asientos());
+        return new TramoPedido(salida.id(), elegido.tramo(), asientos);
+    }
+
+    private record TramoElegido(Salida salida, Tramo tramo, List<Integer> asientos) {
+
+        AsientosSolicitados solicitados() {
+            return new AsientosSolicitados(salida.id(), tramo, asientos);
+        }
     }
 }

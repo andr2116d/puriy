@@ -57,6 +57,23 @@ class ItinerarioTest {
         assertThat(itinerario.estaActivo()).isFalse();
     }
 
+    @Test
+    void corresponde_al_pedido_solo_si_coinciden_los_dos_tramos() {
+        var itinerario =
+                Itinerario.retener(solicitud(List.of(asiento(1, 9000)), List.of(asiento(2, 9000))), REGLAS, AHORA);
+        var titular = itinerario.primerTramo().titular();
+        var primero = solicitados(itinerario.primerTramo(), 1);
+
+        assertThat(itinerario.correspondeA(Canal.INVITADO, titular, primero, solicitados(itinerario.segundoTramo(), 2)))
+                .isTrue();
+        assertThat(itinerario.correspondeA(Canal.INVITADO, titular, primero, solicitados(itinerario.segundoTramo(), 3)))
+                .isFalse();
+    }
+
+    private static AsientosSolicitados solicitados(Reserva tramo, Integer... numeros) {
+        return new AsientosSolicitados(tramo.salidaId(), tramo.tramo(), List.of(numeros));
+    }
+
     private static SolicitudDeItinerario solicitud(List<AsientoReservado> primeros, List<AsientoReservado> segundos) {
         return new SolicitudDeItinerario(
                 UUID.randomUUID(),

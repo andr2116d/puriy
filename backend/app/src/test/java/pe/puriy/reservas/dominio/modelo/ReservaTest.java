@@ -3,6 +3,7 @@ package pe.puriy.reservas.dominio.modelo;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static pe.puriy.reservas.dominio.modelo.ReservasDeEjemplo.AHORA;
+import static pe.puriy.reservas.dominio.modelo.ReservasDeEjemplo.LIMA_CHIMBOTE;
 import static pe.puriy.reservas.dominio.modelo.ReservasDeEjemplo.LIMA_TUMBES;
 import static pe.puriy.reservas.dominio.modelo.ReservasDeEjemplo.POLITICA;
 import static pe.puriy.reservas.dominio.modelo.ReservasDeEjemplo.asiento;
@@ -90,6 +91,33 @@ class ReservaTest {
         reserva.cancelar(reserva.venceEn().plusSeconds(1));
 
         assertThat(reserva.estado()).isEqualTo(EstadoReserva.VENCIDA);
+    }
+
+    @Test
+    void corresponde_al_mismo_pedido_aunque_los_asientos_lleguen_en_otro_orden() {
+        var reserva = retener(Canal.CLIENTE, List.of(asiento(1, 12000), asiento(13, 9000)));
+        var solicitados = new AsientosSolicitados(salida.id(), LIMA_TUMBES, List.of(13, 1));
+
+        var corresponde = reserva.correspondeA(Canal.CLIENTE, reserva.titular(), solicitados);
+
+        assertThat(corresponde).isTrue();
+    }
+
+    @Test
+    void no_corresponde_si_cambian_los_asientos_el_tramo_el_titular_o_el_canal() {
+        var reserva = retener(Canal.CLIENTE, List.of(asiento(1, 12000)));
+        var titular = reserva.titular();
+        var mismos = new AsientosSolicitados(salida.id(), LIMA_TUMBES, List.of(1));
+
+        assertThat(reserva.correspondeA(
+                        Canal.CLIENTE, titular, new AsientosSolicitados(salida.id(), LIMA_TUMBES, List.of(2))))
+                .isFalse();
+        assertThat(reserva.correspondeA(
+                        Canal.CLIENTE, titular, new AsientosSolicitados(salida.id(), LIMA_CHIMBOTE, List.of(1))))
+                .isFalse();
+        assertThat(reserva.correspondeA(Canal.CLIENTE, ReservasDeEjemplo.invitado(), mismos))
+                .isFalse();
+        assertThat(reserva.correspondeA(Canal.AGENTE, titular, mismos)).isFalse();
     }
 
     private Reserva retener(Canal canal, List<AsientoReservado> asientos) {

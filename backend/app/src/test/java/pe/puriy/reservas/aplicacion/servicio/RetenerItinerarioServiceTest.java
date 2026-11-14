@@ -14,6 +14,7 @@ import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
 import org.junit.jupiter.api.Test;
+import pe.puriy.compartido.dominio.ClaveDeIdempotenciaReutilizadaException;
 import pe.puriy.compartido.dominio.Monto;
 import pe.puriy.compartido.dominio.TerminalId;
 import pe.puriy.reservas.aplicacion.puerto.entrada.CancelarItinerarioCommand;
@@ -55,6 +56,32 @@ class RetenerItinerarioServiceTest {
         var primero = retener(comando);
 
         assertThat(retener(comando).id()).isEqualTo(primero.id());
+    }
+
+    @Test
+    void reusar_la_clave_para_otro_itinerario_se_rechaza() {
+        var primero = comando(segunda);
+        retener(primero);
+        var otroAsiento = RetenerItinerarioCommand.builder()
+                .claveIdempotencia(primero.claveIdempotencia())
+                .primerTramo(primero.primerTramo())
+                .segundoTramo(new TramoDelItinerario(segunda.id(), TRUJILLO, CAJAMARCA, List.of(14)))
+                .canal(primero.canal())
+                .titular(primero.titular())
+                .build();
+
+        assertThatThrownBy(() -> retener(otroAsiento)).isInstanceOf(ClaveDeIdempotenciaReutilizadaException.class);
+    }
+
+    @Test
+    void un_reintento_despues_del_cierre_de_venta_devuelve_el_itinerario_ya_retenido() {
+        var comando = comando(segunda);
+        var primero = retener(comando);
+        var enElCierre = ReservasDeEjemplo.SALE_DE_LIMA.minus(Duration.ofMinutes(30));
+
+        var repetido = servicio(enElCierre).ejecutar(comando);
+
+        assertThat(repetido.id()).isEqualTo(primero.id());
     }
 
     @Test
