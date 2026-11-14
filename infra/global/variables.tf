@@ -17,3 +17,13 @@ variable "perfil_aws" {
   description = "Perfil local de IAM Identity Center"
   type        = string
 }
+
+variable "repositorio_oidc" {
+  description = "Repositorio en el formato inmutable del sub de GitHub: dueño@id/repo@id"
+  type        = string
+}
+
+variable "rama_despliegue" {
+  description = "Única rama que puede desplegar este ambiente"
+  type        = string
+}
