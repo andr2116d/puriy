@@ -9,6 +9,7 @@ resource "aws_sns_topic" "outbox" {
   name                        = "${var.nombre}-outbox.fifo"
   fifo_topic                  = true
   content_based_deduplication = true
+  kms_master_key_id           = "alias/aws/sns"
 }
 
 resource "aws_sqs_queue" "fifo_dlq" {
