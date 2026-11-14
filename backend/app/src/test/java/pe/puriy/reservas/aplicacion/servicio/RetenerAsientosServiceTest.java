@@ -15,6 +15,7 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
 import org.junit.jupiter.api.Test;
+import pe.puriy.compartido.dominio.ClaveDeIdempotenciaReutilizadaException;
 import pe.puriy.compartido.dominio.Monto;
 import pe.puriy.compartido.dominio.SalidaId;
 import pe.puriy.reservas.aplicacion.puerto.entrada.RetenerAsientosCommand;
@@ -92,6 +93,24 @@ class RetenerAsientosServiceTest {
         var repetida = escenario.retencion().ejecutar(comando);
 
         assertThat(repetida.id()).isEqualTo(primera.id());
+    }
+
+    @Test
+    void reusar_la_clave_para_otros_asientos_se_rechaza() {
+        var primera = escenario.comando(LIMA, TUMBES, Canal.CLIENTE, 1);
+        escenario.retencion().ejecutar(primera);
+        var otrosAsientos = RetenerAsientosCommand.builder()
+                .claveIdempotencia(primera.claveIdempotencia())
+                .salidaId(primera.salidaId())
+                .origen(LIMA)
+                .destino(TUMBES)
+                .asientos(List.of(2))
+                .canal(primera.canal())
+                .titular(primera.titular())
+                .build();
+
+        assertThatThrownBy(() -> escenario.retencion().ejecutar(otrosAsientos))
+                .isInstanceOf(ClaveDeIdempotenciaReutilizadaException.class);
     }
 
     @Test

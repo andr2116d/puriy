@@ -75,4 +75,18 @@ class ReservasApiIT {
         assertThat(repetida).isEqualTo(primera);
         assertThat(mvc.get().uri("/api/v1/reservas/" + primera)).hasStatus(HttpStatus.OK);
     }
+
+    @Test
+    void reusar_la_clave_para_otros_asientos_responde_422_y_no_retiene_nada() {
+        var clave = UUID.randomUUID();
+        CatalogoDePrueba.id(catalogo.retener(clave, catalogo.lima, catalogo.trujillo, 1));
+
+        assertThat(catalogo.retener(clave, catalogo.lima, catalogo.trujillo, 2))
+                .hasStatus(HttpStatus.UNPROCESSABLE_CONTENT)
+                .bodyJson()
+                .hasPathSatisfying(
+                        "$.codigo", codigo -> assertThat(codigo).isEqualTo("clave-de-idempotencia-reutilizada"));
+        assertThat(catalogo.retener(UUID.randomUUID(), catalogo.lima, catalogo.trujillo, 2))
+                .hasStatus(HttpStatus.CREATED);
+    }
 }

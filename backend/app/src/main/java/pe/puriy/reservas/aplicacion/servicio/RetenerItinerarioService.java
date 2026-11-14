@@ -6,6 +6,7 @@ import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import pe.puriy.compartido.dominio.ClaveDeIdempotenciaReutilizadaException;
 import pe.puriy.reservas.aplicacion.puerto.entrada.DetalleItinerario;
 import pe.puriy.reservas.aplicacion.puerto.entrada.RetenerItinerarioCommand;
 import pe.puriy.reservas.aplicacion.puerto.entrada.RetenerItinerarioCommand.TramoDelItinerario;
@@ -15,6 +16,7 @@ import pe.puriy.reservas.aplicacion.puerto.salida.SalidaPort;
 import pe.puriy.reservas.aplicacion.puerto.salida.TarifaPort;
 import pe.puriy.reservas.dominio.excepcion.ConexionInvalidaException;
 import pe.puriy.reservas.dominio.excepcion.SalidaNoEncontradaException;
+import pe.puriy.reservas.dominio.modelo.AsientosSolicitados;
 import pe.puriy.reservas.dominio.modelo.Itinerario;
 import pe.puriy.reservas.dominio.modelo.PoliticaDeConexion;
 import pe.puriy.reservas.dominio.modelo.PoliticaReserva;
@@ -45,6 +47,10 @@ class RetenerItinerarioService implements RetenerItinerarioUseCase {
         var itinerario = itinerarios
                 .buscarPorClave(comando.claveIdempotencia())
                 .orElseGet(() -> retenerNuevo(comando, primero, segundo, ahora));
+        if (!itinerario.correspondeA(
+                comando.canal(), comando.titular(), primero.solicitados(), segundo.solicitados())) {
+            throw new ClaveDeIdempotenciaReutilizadaException();
+        }
         return DetalleItinerario.desde(itinerario, ahora);
     }
 
@@ -80,5 +86,10 @@ class RetenerItinerarioService implements RetenerItinerarioUseCase {
         return new TramoPedido(salida.id(), elegido.tramo(), asientos);
     }
 
-    private record TramoElegido(Salida salida, Tramo tramo, List<Integer> asientos) {}
+    private record TramoElegido(Salida salida, Tramo tramo, List<Integer> asientos) {
+
+        AsientosSolicitados solicitados() {
+            return new AsientosSolicitados(salida.id(), tramo, asientos);
+        }
+    }
 }

@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
+import pe.puriy.compartido.dominio.ClaveDeIdempotenciaReutilizadaException;
 import pe.puriy.compartido.dominio.RecursoNoEncontradoException;
 import pe.puriy.compartido.dominio.ReglaDeNegocioException;
 
@@ -35,6 +36,13 @@ class ManejadorErroresHttp extends ResponseEntityExceptionHandler {
     ProblemDetail reglaDeNegocio(ReglaDeNegocioException excepcion) {
         log.atInfo().addKeyValue("codigo", excepcion.codigo()).log("regla de negocio rechazada");
         return problema(HttpStatus.CONFLICT, excepcion.codigo(), excepcion.mensaje());
+    }
+
+    // Reusar una clave con otro cuerpo es un error del cliente, no un conflicto de negocio
+    @ExceptionHandler(ClaveDeIdempotenciaReutilizadaException.class)
+    ProblemDetail claveDeIdempotenciaReutilizada(ClaveDeIdempotenciaReutilizadaException excepcion) {
+        log.atWarn().addKeyValue("codigo", excepcion.codigo()).log("clave de idempotencia reutilizada");
+        return problema(HttpStatus.UNPROCESSABLE_CONTENT, excepcion.codigo(), excepcion.mensaje());
     }
 
     @ExceptionHandler(RecursoNoEncontradoException.class)

@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import pe.puriy.compartido.dominio.ClaveDeIdempotenciaReutilizadaException;
 import pe.puriy.compartido.dominio.RecursoNoEncontradoException;
 import pe.puriy.compartido.dominio.ReglaDeNegocioException;
 
@@ -39,6 +40,15 @@ class ManejadorErroresHttpTest {
                 .hasPathSatisfying(
                         "$.type", tipo -> assertThat(tipo).isEqualTo("https://puriy.pe/errores/asiento-no-disponible"))
                 .hasPathSatisfying("$.detail", detalle -> assertThat(detalle).isEqualTo("El asiento ya fue tomado"));
+    }
+
+    @Test
+    void reusar_una_clave_de_idempotencia_con_otra_solicitud_responde_422() {
+        assertThat(mvc.get().uri("/prueba/clave-reutilizada"))
+                .hasStatus(HttpStatus.UNPROCESSABLE_CONTENT)
+                .bodyJson()
+                .hasPathSatisfying(
+                        "$.codigo", codigo -> assertThat(codigo).isEqualTo("clave-de-idempotencia-reutilizada"));
     }
 
     @Test
@@ -97,6 +107,11 @@ class ManejadorErroresHttpTest {
         @GetMapping("/regla")
         void regla() {
             throw new AsientoNoDisponibleDePruebaException();
+        }
+
+        @GetMapping("/clave-reutilizada")
+        void claveReutilizada() {
+            throw new ClaveDeIdempotenciaReutilizadaException();
         }
 
         @GetMapping("/no-encontrado")

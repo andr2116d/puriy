@@ -5,6 +5,7 @@ import java.time.Instant;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import pe.puriy.compartido.dominio.ClaveDeIdempotenciaReutilizadaException;
 import pe.puriy.reservas.aplicacion.puerto.entrada.DetalleReserva;
 import pe.puriy.reservas.aplicacion.puerto.entrada.RetenerAsientosCommand;
 import pe.puriy.reservas.aplicacion.puerto.entrada.RetenerAsientosUseCase;
@@ -12,6 +13,7 @@ import pe.puriy.reservas.aplicacion.puerto.salida.ReservaRepositoryPort;
 import pe.puriy.reservas.aplicacion.puerto.salida.SalidaPort;
 import pe.puriy.reservas.aplicacion.puerto.salida.TarifaPort;
 import pe.puriy.reservas.dominio.excepcion.SalidaNoEncontradaException;
+import pe.puriy.reservas.dominio.modelo.AsientosSolicitados;
 import pe.puriy.reservas.dominio.modelo.PoliticaReserva;
 import pe.puriy.reservas.dominio.modelo.Reserva;
 import pe.puriy.reservas.dominio.modelo.Salida;
@@ -39,6 +41,10 @@ class RetenerAsientosService implements RetenerAsientosUseCase {
         // Un reintento recibe lo ya retenido aunque desde entonces haya cerrado la venta o cambiado la tarifa
         var reserva = reservas.buscarPorClave(comando.claveIdempotencia())
                 .orElseGet(() -> retenerNueva(comando, salida, tramo, ahora));
+        var solicitados = new AsientosSolicitados(salida.id(), tramo, comando.asientos());
+        if (!reserva.correspondeA(comando.canal(), comando.titular(), solicitados)) {
+            throw new ClaveDeIdempotenciaReutilizadaException();
+        }
         return DetalleReserva.desde(reserva, ahora);
     }
 

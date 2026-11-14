@@ -101,6 +101,7 @@ class CatalogoDePrueba {
         return terminal(ciudad);
     }
 
+    // El navegador sale de la clave para que un reintento repita exactamente el mismo cuerpo
     MvcTestResult retener(UUID clave, String origen, String destino, int asiento) {
         return mvc.post()
                 .uri("/api/v1/reservas")
@@ -109,7 +110,7 @@ class CatalogoDePrueba {
                 .content("""
                         {"salidaId": "%s", "origenId": "%s", "destinoId": "%s", "asientos": [%d],
                          "canal": "INVITADO", "titular": {"navegadorId": "%s"}}
-                        """.formatted(salida, origen, destino, asiento, UUID.randomUUID()))
+                        """.formatted(salida, origen, destino, asiento, clave))
                 .exchange();
     }
 
