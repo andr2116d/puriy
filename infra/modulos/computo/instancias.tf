@@ -52,6 +52,7 @@ resource "aws_security_group" "api" {
 
 resource "aws_vpc_security_group_ingress_rule" "api_alb" {
   security_group_id            = aws_security_group.api.id
+  description                  = "Solo el ALB llega a la API"
   referenced_security_group_id = aws_security_group.alb.id
   ip_protocol                  = "tcp"
   from_port                    = 8080
@@ -60,12 +61,14 @@ resource "aws_vpc_security_group_ingress_rule" "api_alb" {
 
 resource "aws_vpc_security_group_egress_rule" "api_salida" {
   security_group_id = aws_security_group.api.id
+  description       = "Salida a internet por el NAT para ECR y AWS"
   cidr_ipv4         = "0.0.0.0/0"
   ip_protocol       = "-1"
 }
 
 resource "aws_vpc_security_group_ingress_rule" "base_api" {
   security_group_id            = var.base.grupo_seguridad_id
+  description                  = "Solo la API llega a PostgreSQL"
   referenced_security_group_id = aws_security_group.api.id
   ip_protocol                  = "tcp"
   from_port                    = 5432
