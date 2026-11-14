@@ -30,9 +30,33 @@ resource "aws_wafv2_web_acl" "web" {
     }
   }
 
+
+  rule {
+    name     = "entradas-maliciosas"
+    priority = 2
+
+    override_action {
+      none {}
+    }
+
+    statement {
+      managed_rule_group_statement {
+        name        = "AWSManagedRulesKnownBadInputsRuleSet"
+        vendor_name = "AWS"
+      }
+    }
+
+    visibility_config {
+      cloudwatch_metrics_enabled = true
+      metric_name                = "${var.nombre}-entradas-maliciosas"
+      sampled_requests_enabled   = true
+    }
+  }
+
+
   rule {
     name     = "limite-por-ip"
-    priority = 2
+    priority = 3
 
     action {
       block {}
