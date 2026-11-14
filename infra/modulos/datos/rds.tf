@@ -28,4 +28,5 @@ resource "aws_db_instance" "base" {
   copy_tags_to_snapshot       = true
   skip_final_snapshot         = true
   apply_immediately           = true
+  auto_minor_version_upgrade  = true
 }
