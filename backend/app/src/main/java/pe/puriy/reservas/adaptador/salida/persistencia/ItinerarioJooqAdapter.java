@@ -4,6 +4,7 @@ import static puriy.basedatos.reservas.Tables.ITINERARIOS;
 
 import java.util.Comparator;
 import java.util.Optional;
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.jooq.Condition;
 import org.jooq.DSLContext;
@@ -30,8 +31,7 @@ class ItinerarioJooqAdapter implements ItinerarioRepositoryPort {
                 .doNothing()
                 .execute();
         if (insertados == 0) {
-            return buscar(ITINERARIOS.CLAVE_IDEMPOTENCIA.eq(itinerario.claveIdempotencia()))
-                    .orElseThrow();
+            return buscarPorClave(itinerario.claveIdempotencia()).orElseThrow();
         }
         // Cada reserva bloquea sus asientos al agregarse: en orden de salida, dos itinerarios que
         // comparten salidas piden los bloqueos en el mismo orden y no pueden trabarse entre sí
@@ -44,6 +44,11 @@ class ItinerarioJooqAdapter implements ItinerarioRepositoryPort {
     @Override
     public Optional<Itinerario> buscarPorId(ItinerarioId id) {
         return buscar(ITINERARIOS.ID.eq(id.valor()));
+    }
+
+    @Override
+    public Optional<Itinerario> buscarPorClave(UUID claveIdempotencia) {
+        return buscar(ITINERARIOS.CLAVE_IDEMPOTENCIA.eq(claveIdempotencia));
     }
 
     private Optional<Itinerario> buscar(Condition condicion) {

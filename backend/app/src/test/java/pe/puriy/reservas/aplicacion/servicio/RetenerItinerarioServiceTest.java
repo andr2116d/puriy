@@ -58,6 +58,17 @@ class RetenerItinerarioServiceTest {
     }
 
     @Test
+    void un_reintento_despues_del_cierre_de_venta_devuelve_el_itinerario_ya_retenido() {
+        var comando = comando(segunda);
+        var primero = retener(comando);
+        var enElCierre = ReservasDeEjemplo.SALE_DE_LIMA.minus(Duration.ofMinutes(30));
+
+        var repetido = servicio(enElCierre).ejecutar(comando);
+
+        assertThat(repetido.id()).isEqualTo(primero.id());
+    }
+
+    @Test
     void rechaza_dos_tramos_que_no_empalman_en_el_mismo_terminal() {
         var comando = comandoCon(tramo(escenario.salida, LIMA, CHIMBOTE), tramo(segunda, TRUJILLO, CAJAMARCA));
 

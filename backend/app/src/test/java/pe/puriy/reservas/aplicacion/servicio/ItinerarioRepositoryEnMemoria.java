@@ -3,6 +3,7 @@ package pe.puriy.reservas.aplicacion.servicio;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import pe.puriy.reservas.aplicacion.puerto.salida.ItinerarioRepositoryPort;
 import pe.puriy.reservas.dominio.modelo.Itinerario;
@@ -16,9 +17,7 @@ class ItinerarioRepositoryEnMemoria implements ItinerarioRepositoryPort {
 
     @Override
     public Itinerario agregarUnaVez(Itinerario itinerario) {
-        var existente = itinerarios.values().stream()
-                .filter(otro -> otro.claveIdempotencia().equals(itinerario.claveIdempotencia()))
-                .findFirst();
+        var existente = buscarPorClave(itinerario.claveIdempotencia());
         if (existente.isPresent()) {
             return existente.get();
         }
@@ -33,5 +32,13 @@ class ItinerarioRepositoryEnMemoria implements ItinerarioRepositoryPort {
             var tramos = reservas.listarDelItinerario(id);
             return Itinerario.reconstituir(id, itinerario.claveIdempotencia(), tramos.get(0), tramos.get(1));
         });
+    }
+
+    @Override
+    public Optional<Itinerario> buscarPorClave(UUID claveIdempotencia) {
+        return itinerarios.values().stream()
+                .filter(itinerario -> itinerario.claveIdempotencia().equals(claveIdempotencia))
+                .findFirst()
+                .flatMap(itinerario -> buscarPorId(itinerario.id()));
     }
 }
