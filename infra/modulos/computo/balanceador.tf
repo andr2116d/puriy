@@ -27,10 +27,11 @@ resource "aws_vpc_security_group_egress_rule" "alb_api" {
 }
 
 resource "aws_lb" "api" {
-  name               = "${var.nombre}-api"
-  load_balancer_type = "application"
-  security_groups    = [aws_security_group.alb.id]
-  subnets            = var.subredes_publicas
+  name                       = "${var.nombre}-api"
+  load_balancer_type         = "application"
+  security_groups            = [aws_security_group.alb.id]
+  subnets                    = var.subredes_publicas
+  drop_invalid_header_fields = true
 }
 
 resource "aws_lb_target_group" "api" {
