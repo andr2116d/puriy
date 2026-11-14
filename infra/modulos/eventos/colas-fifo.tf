@@ -9,6 +9,7 @@ resource "aws_sns_topic" "outbox" {
   name                        = "${var.nombre}-outbox.fifo"
   fifo_topic                  = true
   content_based_deduplication = true
+  kms_master_key_id           = "alias/aws/sns"
 }
 
 resource "aws_sqs_queue" "fifo_dlq" {
@@ -18,6 +19,7 @@ resource "aws_sqs_queue" "fifo_dlq" {
   fifo_queue                  = true
   content_based_deduplication = true
   message_retention_seconds   = 1209600
+  sqs_managed_sse_enabled     = true
 }
 
 resource "aws_sqs_queue" "fifo" {
@@ -32,6 +34,7 @@ resource "aws_sqs_queue" "fifo" {
     deadLetterTargetArn = aws_sqs_queue.fifo_dlq[each.key].arn
     maxReceiveCount     = var.maximo_recepciones
   })
+  sqs_managed_sse_enabled = true
 }
 
 data "aws_iam_policy_document" "fifo" {

@@ -10,6 +10,7 @@ resource "aws_security_group" "alb" {
 
 resource "aws_vpc_security_group_ingress_rule" "alb_cloudfront" {
   security_group_id = aws_security_group.alb.id
+  description       = "HTTP solo desde CloudFront"
   prefix_list_id    = data.aws_ec2_managed_prefix_list.cloudfront.id
   ip_protocol       = "tcp"
   from_port         = 80
@@ -18,6 +19,7 @@ resource "aws_vpc_security_group_ingress_rule" "alb_cloudfront" {
 
 resource "aws_vpc_security_group_egress_rule" "alb_api" {
   security_group_id            = aws_security_group.alb.id
+  description                  = "Hacia la API en el puerto 8080"
   referenced_security_group_id = aws_security_group.api.id
   ip_protocol                  = "tcp"
   from_port                    = 8080
@@ -25,10 +27,11 @@ resource "aws_vpc_security_group_egress_rule" "alb_api" {
 }
 
 resource "aws_lb" "api" {
-  name               = "${var.nombre}-api"
-  load_balancer_type = "application"
-  security_groups    = [aws_security_group.alb.id]
-  subnets            = var.subredes_publicas
+  name                       = "${var.nombre}-api"
+  load_balancer_type         = "application"
+  security_groups            = [aws_security_group.alb.id]
+  subnets                    = var.subredes_publicas
+  drop_invalid_header_fields = true
 }
 
 resource "aws_lb_target_group" "api" {

@@ -1,6 +1,7 @@
 resource "aws_sqs_queue" "notificaciones_dlq" {
   name                      = "${var.nombre}-notificaciones-dlq"
   message_retention_seconds = 1209600
+  sqs_managed_sse_enabled   = true
 }
 
 resource "aws_sqs_queue" "notificaciones" {
@@ -11,6 +12,7 @@ resource "aws_sqs_queue" "notificaciones" {
     deadLetterTargetArn = aws_sqs_queue.notificaciones_dlq.arn
     maxReceiveCount     = var.maximo_recepciones
   })
+  sqs_managed_sse_enabled = true
 }
 
 resource "aws_cloudwatch_event_rule" "boleto_creado" {
