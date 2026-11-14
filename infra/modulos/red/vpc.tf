@@ -10,8 +10,6 @@ resource "aws_vpc" "principal" {
 resource "aws_default_security_group" "principal" {
   vpc_id = aws_vpc.principal.id
 
-  # Sin bloques ingress ni egress: el SG por defecto bloquea todo el tráfico
-
   tags = {
     Name = "${var.nombre}-default-restringido"
   }
@@ -31,7 +29,7 @@ resource "aws_subnet" "publica" {
   vpc_id                  = aws_vpc.principal.id
   availability_zone       = each.key
   cidr_block              = each.value.publica
-  map_public_ip_on_launch = true
+  map_public_ip_on_launch = false
 
   tags = {
     Name = "${var.nombre}-publica-${each.key}"
